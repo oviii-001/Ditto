@@ -151,12 +151,20 @@ Ditto connects to your Google Drive using Google's standard OAuth 2.0 Desktop Ap
 5. **Test users:** Under "Test users", click **Add Users** and enter your personal Google email address (the one you will sign in with).
 6. Click **Save and Continue**.
 
+> [!IMPORTANT]
+> **Don't Skip "Test Users":**  
+> While your Google Cloud project is in "Testing" mode (the default), Google will **block** any Google account that is not explicitly added under **Test users**. Be sure to add your Gmail address here!
+
 ### Step 4: Create Desktop OAuth Client Credentials
 1. Go to **APIs & Services > Credentials**.
 2. Click **+ Create Credentials** at the top and select **OAuth client ID**.
-3. In the **Application type** dropdown, select **Desktop app**.
+3. In the **Application type** dropdown, select **Desktop app**. *(Do NOT select "Web application")*.
 4. Name it **Ditto Desktop** and click **Create**.
 5. A modal will pop up displaying your **Client ID** and **Client Secret**. Copy both values.
+
+> [!WARNING]
+> **Must Be "Desktop app":**  
+> Choosing *Web application* requires pre-registering exact redirect URLs and will cause a `redirect_uri_mismatch` error. Selecting **Desktop app** allows Google to automatically redirect to local loopback ports (`http://127.0.0.1:*`).
 
 ### Step 5: Connect Ditto
 Run the setup wizard in your terminal:
@@ -167,10 +175,17 @@ When prompted:
 1. Ditto asks if you want to open Google Cloud Console (press Enter or `n` if already open).
 2. Paste your **Client ID**.
 3. Paste your **Client Secret**.
-4. Ditto will immediately launch your browser to sign in with your Google account.
+4. Ditto prints the authorization link and automatically launches your browser.
 5. Click **Allow** on the consent screen.
 
 Your tokens are saved securely to `~/.ditto/state.json`. You never have to configure this again!
+
+> [!TIP]
+> **Troubleshooting OAuth Timeout:**
+> If you encounter `OAuth authentication timed out after 120 seconds`:
+> 1. Check that your Gmail address was added under **OAuth consent screen > Test users**.
+> 2. Check that your credential type is **Desktop app** (not Web application).
+> 3. If your browser didn't open automatically, copy the URL printed in the terminal into your browser.
 
 > [!TIP]
 > **Environment Variables Alternative:**  
