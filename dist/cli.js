@@ -131,8 +131,7 @@ async function handleAuth(store, args = []) {
         if (canonicalFile.folderId) {
             console.log(`✓ Dedicated Folder:   Ditto/ (${canonicalFile.folderId})`);
         }
-        console.log(`✓ Canonical File:     ${canonicalFile.fileName} (${canonicalFile.fileId})`);
-        console.log(`✓ Permanent Test Link: ${canonicalFile.webViewLink}\n`);
+        console.log(`✓ Canonical File:     ${canonicalFile.fileName} (${canonicalFile.fileId})\n`);
         console.log('You can now run \'ditto deliver\' from any Android project or let Antigravity do it automatically!\n');
     }
     catch (err) {
@@ -312,8 +311,6 @@ async function handleStatus(store, args) {
         }
         console.log(`File Name:         ${state.drive.fileName}`);
         console.log(`File ID:           ${state.drive.fileId}`);
-        console.log(`Permanent Link:    ${state.drive.webViewLink}`);
-        console.log(`Direct Download:   ${state.drive.webContentLink}`);
         if (state.drive.lastUploadedAt) {
             console.log('\n--- Last Delivered Build ---');
             console.log(`Last Project:      ${state.drive.lastProject || 'N/A'}`);

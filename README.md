@@ -128,7 +128,7 @@ ditto setup
 When you run `ditto setup`, it:
 1. **Auto-installs the Antigravity Skill:** Detects your local Antigravity installation (`~/.gemini/config/skills/apk-delivery/` or `%USERPROFILE%\.gemini\...`) and copies the agent skill so your AI pair programmer knows how to deliver APKs right away.
 2. **Connects Google Drive:** Guides you through signing in with your Google account via browser and configures least-privilege `drive.file` access.
-3. **Creates the Dedicated Drive Folder & File:** Sets up a dedicated `Ditto/` folder and your permanent `Ditto/Latest-debug.apk` file on Drive with public reader access and outputs your permanent download link.
+3. **Creates the Dedicated Drive Folder & File:** Sets up a dedicated `Ditto/` folder and your permanent `Ditto/Latest-debug.apk` file on Drive with public reader access ready for automated delivery.
 
 ---
 
