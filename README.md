@@ -5,24 +5,35 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Release](https://img.shields.io/badge/release-v1.0.0-blue.svg)](CHANGELOG.md)
 
-> **Zero-clutter Android debug APK delivery automation for Google Antigravity & mobile developers.**  
-> One user. One permanent Google Drive testing link. Unlimited cross-project overwrites.
+> **Automated APK delivery skill for [Google Antigravity](https://antigravity.google.com).**  
+> Finish a task → APK uploaded to Drive → permanent link posted in chat → tap to install. One link, forever.  
+> Built for Android developers who use Antigravity's remote control to pair-program from their phone.
 
 ---
 
 ## 🎯 The Problem
 
-AI coding assistants like **Google Antigravity** empower developers to build and modify Android apps autonomously—even from a mobile phone via remote control. However, when the agent completes a feature or bugfix, testing the actual Android build on physical hardware introduces manual friction:
+**Google Antigravity** has a built-in remote control system. Android developers can monitor and guide the AI agent directly from their phone—watching it write code, run checks, and build the project in real time.
 
-- Building APKs manually or digging through `build/outputs/apk/debug/`.
-- Uploading multiple APKs to cloud storage, causing storage sprawl and confusing filename suffixes (`app-debug-1.apk`, `app-debug-2.apk`).
-- Constantly changing download links requiring the user to copy new URLs for every iteration.
+But there's a gap: **once the agent finishes the task and builds the debug APK, there's no way for the developer to test it on their phone**. The compiled APK sits on the host machine. Getting it onto a physical device requires:
+
+- Manually locating the build output buried in `build/outputs/apk/debug/`.
+- Uploading to a cloud storage service—which creates a new file and a new link every single time (`app-debug-1.apk`, `app-debug-2.apk`, ...).
+- Copying and sharing the new URL back into the conversation, breaking the "develop from phone" flow entirely.
+
+This turns what should be a seamless remote development loop into a multi-step manual process each time the agent completes a build.
 
 ## ✨ The Solution: Ditto
 
-**Ditto** gives **Google Antigravity** the autonomous capability to build, inspect, and deliver fresh Android debug APKs straight to your physical device.
+**Ditto** is an automation skill for **Google Antigravity** that closes the gap between finishing an Android task and testing it on your phone.
 
-You don't need Android Studio open, you don't need emulators, and you never have to type build commands into a terminal. You simply chat with Antigravity as you normally do, and the built-in skill handles the compilation, packaging, and in-place cloud replacement silently in the background.
+The moment Antigravity completes a task, the `apk-delivery` skill kicks in automatically:
+
+1. Compiles the debug APK using the project's Gradle wrapper.
+2. Uploads it to your Google Drive—**overwriting the same single file every time**, regardless of which project it came from.
+3. Posts the permanent download link directly **in the same Antigravity chat conversation** you're already watching on your phone.
+
+You tap the link, download the APK, install it, and test. No switching apps, no copying URLs, no Drive clutter.
 
 ### Key Principles
 
@@ -196,53 +207,50 @@ Your tokens are saved securely to `~/.ditto/state.json`. You never have to confi
 
 ---
 
-## 🤖 How to Use in Google Antigravity (Zero IDE & Zero CLI)
+## 🤖 Using the `apk-delivery` Skill in Antigravity
 
-The core principle of Ditto is that **you never need an IDE (like Android Studio) or a command line terminal**. Once setup is done, your entire workflow happens through natural conversation inside **Google Antigravity**.
+> [!IMPORTANT]
+> Ditto is designed exclusively for **Google Antigravity** (the conversational AI agent with remote control). It does **not** target Antigravity IDE or the `agy` CLI—those products do not have the remote control system that creates the delivery problem Ditto solves.
 
-### 1. Hands-Free Automatic Delivery (Default)
+### How It Works
 
-Whenever you ask Antigravity to build, edit, fix, or refactor anything in an Android project, the built-in `apk-delivery` skill automatically activates as soon as the code changes are complete.
+After running `ditto setup`, the `apk-delivery` skill is registered in your Antigravity skills directory and becomes immediately available to the agent—no restart needed.
 
-**Conversational examples you say to Antigravity:**
+From that point on, Antigravity is aware of the skill and invokes it automatically at the end of any Android task.
+
+---
+
+### 1. Automatic Delivery After a Task
+
+Just ask Antigravity to work on your Android project as you normally would:
+
 > *"Add biometric authentication to the login screen."*  
-> *"Fix the crash when opening the profile picture gallery."*  
-> *"Refactor the network layer to use Ktor and make sure it builds."*
+> *"Fix the crash when opening the gallery."*  
+> *"Refactor the data layer and make sure it compiles."*
 
-**What Antigravity does autonomously:**
-1. Antigravity writes the Kotlin / Compose code and runs project checks.
-2. The `apk-delivery` skill triggers behind the scenes.
-3. Antigravity compiles `gradlew assembleDebug` in the background, extracts APK metadata (package name, version, SHA-256), and in-place updates your permanent `Latest-debug.apk` file on Google Drive.
-4. Antigravity posts an interactive completion card directly into the chat with your permanent download link.
+**What Antigravity does after completing the code changes:**
+1. Detects the task involves an Android project with a Gradle wrapper.
+2. Invokes the `apk-delivery` skill in the background.
+3. Runs `gradlew assembleDebug`, inspects the APK (package name, version, SHA-256), and uploads it to your Google Drive—overwriting the existing file in-place.
+4. Posts a notification card directly in the chat with your permanent download link.
 
----
-
-### 2. On-Demand Chat Prompts
-
-You can also prompt Antigravity at any moment to deliver the latest build without making code changes:
-
-- 💬 *"Deliver the APK to my phone"*
-- 💬 *"Build the debug APK and send it to my Google Drive link"*
-- 💬 *"Ship this build so I can test it on my physical device"*
-- 💬 *"Give me the latest APK download link"*
-
-Antigravity executes the delivery pipeline in the background and returns your download card immediately.
+You see the card on your phone, tap the link, and install the build.
 
 ---
 
-### 3. The "Bookmark Once, Test Forever" Mobile Workflow
+### 2. On-Demand Delivery
 
-Because Ditto continuously updates the exact same file on Google Drive across all your projects:
+You can also trigger delivery at any time without asking for code changes:
 
-1. **Bookmark the link on your phone:** Open your permanent download link in your phone's browser (e.g., Chrome) once, and tap **"Add to Home screen"** or save it to bookmarks.
-2. **Develop from anywhere:** Code with Antigravity from your laptop, desktop, or even remotely from your mobile device.
-3. **Instant Installation:** Whenever Antigravity finishes a task or you ask for a build, simply open that same home screen icon on your phone to download and install the freshest build. No digging through chat history, no multiple links, and zero storage clutter.
+- 💬 *"Build the APK and send it to my Drive"*
+- 💬 *"Deliver the latest build to my phone"*
+- 💬 *"Give me the download link for the current build"*
 
 ---
 
-### 📱 What You See in Antigravity Chat
+### 3. Notification Card in Chat
 
-When a delivery succeeds, Antigravity renders a structured notification card directly in your conversation:
+When delivery succeeds, Antigravity posts this directly in your conversation:
 
 > ### 📱 Android Build Ready for Testing!
 > - **Project:** DIU Campus Schedule (`com.diu.schedule`)
@@ -250,48 +258,47 @@ When a delivery succeeds, Antigravity renders a structured notification card dir
 > - **Size:** 18.4 MB
 > - **Build Time:** 22.4s | **Upload:** 6.8s
 > - **Permanent Download Link:** [Download Latest-debug.apk](https://drive.google.com/file/d/1a2b3c4d5e.../view?usp=sharing)
-> 
+>
 > *(This replaces the previous test build on your phone's permanent testing link).*
 
 ---
 
-### 📦 Antigravity Skill Installation Details
+### 4. The "Bookmark Once, Test Forever" Workflow
 
-When you run `ditto setup` (or `npx github:oviii-001/Ditto setup`), the skill is automatically placed in your Antigravity skills directory:
-- **Windows:** `%USERPROFILE%\.gemini\config\skills\apk-delivery\SKILL.md`
-- **macOS / Linux:** `~/.gemini/config/skills/apk-delivery/SKILL.md`
+Because the Drive link never changes:
 
-Antigravity discovers new skills dynamically without requiring an application restart.
+1. Bookmark the permanent download link in your phone's browser (or add it to your home screen).
+2. Every time Antigravity delivers a new build—from any project—open that same bookmark to instantly download and install the latest APK.
+
+No digging through chat history. No multiple links. One bookmark, works forever.
 
 ---
 
-## 💻 Manual Terminal / CLI Reference (Optional)
+### 📦 Skill Location
 
-If you are writing custom CI/CD automation scripts or prefer triggering builds manually from a command prompt:
+The skill file is installed at:
+- **Windows:** `%USERPROFILE%\.gemini\config\skills\apk-delivery\SKILL.md`
+- **macOS / Linux:** `~/.gemini/config/skills/apk-delivery/SKILL.md`
 
-| Command | Description |
-|---|---|
-| `ditto deliver` | Compile debug APK, inspect metadata, upload to Drive in-place, and return URL |
-| `ditto deliver --json` | Agent mode (outputs pure JSON to `stdout`, logs to `stderr`) |
-| `ditto setup` | Run interactive wizard to install Antigravity skill & connect Google Drive |
-| `ditto auth` | Re-authenticate Google Cloud OAuth credentials via browser |
-| `ditto status` | Display current canonical Drive file ID, permanent URLs, and last delivery details |
-| `ditto doctor` | Diagnose environment (Java, Gradle wrapper, OAuth validity, Drive connection) |
-| `ditto --version` | Display the installed Ditto version |
+Antigravity discovers skills dynamically—no restart required after installation.
 
 ---
 
 ## 🗑️ Uninstalling Ditto
 
-To completely remove Ditto, its local configuration, and the Antigravity agent skill from your system:
+### 1. Remove the Antigravity Skill
 
-### 1. Remove the Global CLI
+```powershell
+# Windows (PowerShell):
+Remove-Item -Recurse -Force "$HOME\.gemini\config\skills\apk-delivery"
+```
+
 ```bash
-npm uninstall -g ditto-apk
+# macOS / Linux:
+rm -rf ~/.gemini/config/skills/apk-delivery
 ```
 
 ### 2. Remove Local Configuration & Cached Tokens
-Ditto stores your configuration and tokens in `~/.ditto/`:
 
 ```powershell
 # Windows (PowerShell):
@@ -303,17 +310,10 @@ Remove-Item -Recurse -Force "$HOME\.ditto"
 rm -rf ~/.ditto
 ```
 
-### 3. Remove the Antigravity Agent Skill (Optional)
-If you installed the agent skill for Google Antigravity:
-
-```powershell
-# Windows (PowerShell):
-Remove-Item -Recurse -Force "$HOME\.gemini\config\skills\apk-delivery"
-```
+### 3. Remove the Ditto Package
 
 ```bash
-# macOS / Linux:
-rm -rf ~/.gemini/config/skills/apk-delivery
+npm uninstall -g ditto-apk
 ```
 
 ---
