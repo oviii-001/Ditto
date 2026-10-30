@@ -7,7 +7,7 @@ export class SkillInstaller {
   /**
    * Detects Antigravity skills directories and installs the apk-delivery skill automatically.
    */
-  public static installSkill(): { installedPath: string; isNew: boolean } {
+  public static installSkill(customTargetDir?: string): { installedPath: string; isNew: boolean } {
     const home = os.homedir();
     const candidateDirs = [
       path.join(home, '.gemini', 'config', 'skills', 'apk-delivery'),
@@ -26,13 +26,16 @@ export class SkillInstaller {
 
     const skillContent = fs.readFileSync(bundledSkillPath, 'utf8');
 
-    // Pick target: prefer directory whose parent exists, or default to first candidate
-    let targetDir = candidateDirs[0];
-    for (const dir of candidateDirs) {
-      const parentDir = path.dirname(dir);
-      if (fs.existsSync(parentDir)) {
-        targetDir = dir;
-        break;
+    // Pick target: prefer customTargetDir if provided, else prefer candidate whose parent exists
+    let targetDir = customTargetDir;
+    if (!targetDir) {
+      targetDir = candidateDirs[0];
+      for (const dir of candidateDirs) {
+        const parentDir = path.dirname(dir);
+        if (fs.existsSync(parentDir)) {
+          targetDir = dir;
+          break;
+        }
       }
     }
 

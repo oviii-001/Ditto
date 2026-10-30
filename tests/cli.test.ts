@@ -87,4 +87,81 @@ describe('CLI Integration & Schema Verification', () => {
     expect(stdoutOutput).toContain('"status": "error"');
     expect(stdoutOutput).toContain('Ditto is not authorized');
   });
+
+  it('runs complete deliver pipeline successfully with JSON output', async () => {
+    // 1. Set up synthetic Android project
+    const isWindows = process.platform === 'win32';
+    const wrapper = isWindows ? 'gradlew.bat' : 'gradlew';
+    fs.writeFileSync(path.join(tempProjectDir, 'settings.gradle.kts'), '// settings');
+    fs.writeFileSync(path.join(tempProjectDir, wrapper), '#!/bin/sh');
+
+    // Minimal valid ZIP file for mock APK
+    const apkDir = path.join(tempProjectDir, 'app', 'build', 'outputs', 'apk', 'debug');
+    fs.mkdirSync(apkDir, { recursive: true });
+    const apkPath = path.join(apkDir, 'app-debug.apk');
+
+    // Create minimal valid zip
+    const zipBytes = Buffer.from([
+      0x50, 0x4b, 0x05, 0x06, // EOCD signature
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00
+    ]);
+    // Prepend local header so APKParser sees PK\x03\x04
+    const headerBytes = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
+    fs.writeFileSync(apkPath, Buffer.concat([headerBytes, zipBytes]));
+
+    // 2. Set up authenticated state
+    const mockState: DittoState = {
+      version: '1.0.0',
+      oauth: {
+        clientId: 'mock-client',
+        clientSecret: 'mock-secret',
+        tokens: { access_token: 'valid-token' },
+      },
+      drive: {
+        fileId: 'perm-file-789',
+        fileName: 'Latest-debug.apk',
+        webViewLink: 'https://drive.google.com/file/d/perm-file-789/view',
+        webContentLink: 'https://drive.google.com/uc?export=download&id=perm-file-789',
+        createdAt: '2026-10-30T10:00:00Z',
+      },
+    };
+
+    vi.spyOn(StateStore.prototype, 'loadState').mockReturnValue(mockState);
+    const saveStateSpy = vi.spyOn(StateStore.prototype, 'saveState').mockImplementation(() => {});
+
+    // Mock DriveManager methods
+    const { DriveManager } = await import('../src/drive/drive-manager.js');
+    vi.spyOn(DriveManager.prototype, 'getOrCreateCanonicalFile').mockResolvedValue({
+      fileId: 'perm-file-789',
+      fileName: 'Latest-debug.apk',
+      webViewLink: 'https://drive.google.com/file/d/perm-file-789/view',
+      webContentLink: 'https://drive.google.com/uc?export=download&id=perm-file-789',
+      createdAt: '2026-10-30T10:00:00Z',
+    });
+
+    vi.spyOn(DriveManager.prototype, 'uploadApk').mockResolvedValue({
+      durationSeconds: 1.2,
+      webViewLink: 'https://drive.google.com/file/d/perm-file-789/view',
+      webContentLink: 'https://drive.google.com/uc?export=download&id=perm-file-789',
+    });
+
+    // 3. Run deliver
+    await runCli(['deliver', '--json', '--dir', tempProjectDir, '--skip-build']);
+
+    // 4. Verify stdout schema for AI agents
+    const jsonOutput = stdoutOutput.trim();
+    const result = JSON.parse(jsonOutput);
+
+    expect(result.status).toBe('success');
+    expect(result.project.name).toBe(path.basename(tempProjectDir));
+    expect(result.artifact.fileName).toBe('Latest-debug.apk');
+    expect(result.drive.fileId).toBe('perm-file-789');
+    expect(result.drive.webViewUrl).toBe('https://drive.google.com/file/d/perm-file-789/view');
+    expect(result.drive.overwritten).toBe(true);
+    expect(saveStateSpy).toHaveBeenCalled();
+  });
 });
