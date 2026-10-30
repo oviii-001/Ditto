@@ -216,7 +216,40 @@ Your tokens are saved securely to `~/.ditto/state.json`. You never have to confi
 
 After running `ditto setup`, the `apk-delivery` skill is registered in your Antigravity skills directory and becomes immediately available to the agent—no restart needed.
 
-From that point on, Antigravity is aware of the skill and invokes it automatically at the end of any Android task.
+---
+
+### Invoking the Skill
+
+You can trigger the `apk-delivery` skill in Antigravity in two ways:
+
+#### Option 1 — Slash Command (Explicit)
+
+Type the skill name directly in the Antigravity chat to immediately trigger a build and delivery:
+
+```
+/apk-delivery
+```
+
+Antigravity will compile the debug APK, upload it to your Google Drive, and reply with the download card in the same conversation.
+
+#### Option 2 — Natural Language (Automatic)
+
+Just describe what you want in plain English. Antigravity detects the intent and invokes the skill on your behalf:
+
+```
+deliver the apk to my phone
+```
+```
+build and send the apk to my drive
+```
+```
+ship the latest build so i can test it
+```
+```
+give me the apk download link
+```
+
+The skill also activates **automatically** at the end of any Android coding task—no prompt needed.
 
 ---
 
@@ -242,6 +275,7 @@ You see the card on your phone, tap the link, and install the build.
 
 You can also trigger delivery at any time without asking for code changes:
 
+- 💬 `/apk-delivery`
 - 💬 *"Build the APK and send it to my Drive"*
 - 💬 *"Deliver the latest build to my phone"*
 - 💬 *"Give me the download link for the current build"*
