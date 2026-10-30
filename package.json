@@ -10,11 +10,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "prepare": "tsc",
     "watch": "tsc -w",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "prepack": "npm run build"
+    "test:watch": "vitest"
   },
   "files": [
     "dist",
