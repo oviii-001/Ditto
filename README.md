@@ -152,10 +152,10 @@ Once installed, your agent automatically invokes `ditto deliver --json` when com
 
 | Phase | Milestone | Status |
 |---|---|---|
-| **Phase 1** | Project Scaffolding & Atomic State Engine | 🟡 In Progress |
-| **Phase 2** | Android Build Engine & Dynamic APK Inspector | ⚪ Planned |
-| **Phase 3** | Google Drive Overwrite Engine (`files.update`) | ⚪ Planned |
-| **Phase 4** | CLI Router, Antigravity Skill, and E2E Tests | ⚪ Planned |
+| **Phase 1** | Project Scaffolding & Atomic State Engine | 🟢 Completed |
+| **Phase 2** | Android Build Engine & Dynamic APK Inspector | 🟢 Completed |
+| **Phase 3** | Google Drive Overwrite Engine (`files.update`) | 🟢 Completed |
+| **Phase 4** | CLI Router, Antigravity Skill, and E2E Tests | 🟢 Completed |
 
 See [tasks/plan.md](tasks/plan.md) and [tasks/todo.md](tasks/todo.md) for detailed task breakdowns and progress.
 

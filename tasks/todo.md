@@ -21,7 +21,7 @@
 - [x] Checkpoint 3: Run `npm test` and verify Phase 3 passes
 
 ## Phase 4: CLI Interface & Antigravity Agent Skill
-- [ ] Task 4.1: Executable CLI entrypoint and commands: `auth`, `deliver`, `status` (`bin/ditto.js`, `src/cli.ts`)
-- [ ] Task 4.2: Antigravity Skill definition (`skills/apk-delivery/SKILL.md`)
-- [ ] Task 4.3: End-to-end integration and schema verification (`tests/cli.test.ts`)
-- [ ] Checkpoint 4: Verify complete build and test suite (`npm run build && npm test`)
+- [x] Task 4.1: Executable CLI entrypoint and commands: `auth`, `deliver`, `status` (`bin/ditto.js`, `src/cli.ts`)
+- [x] Task 4.2: Antigravity Skill definition (`skills/apk-delivery/SKILL.md`)
+- [x] Task 4.3: End-to-end integration and schema verification (`tests/cli.test.ts`)
+- [x] Checkpoint 4: Verify complete build and test suite (`npm run build && npm test`)
