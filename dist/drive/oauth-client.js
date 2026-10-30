@@ -74,6 +74,8 @@ export class OAuthManager {
                     prompt: 'consent',
                     scope: [DRIVE_FILE_SCOPE],
                 });
+                console.log('\n🔗 If your browser does not open automatically, visit this URL:');
+                console.log(`${authUrl}\n`);
                 if (shouldOpenBrowser) {
                     const openCmd = process.platform === 'win32'
                         ? `start "" "${authUrl}"`
@@ -88,7 +90,11 @@ export class OAuthManager {
                 }
                 timer = setTimeout(() => {
                     server.close();
-                    reject(new Error(`OAuth authentication timed out after ${timeoutMs / 1000} seconds.`));
+                    reject(new Error(`OAuth authentication timed out after ${timeoutMs / 1000} seconds.\n\n` +
+                        `Common causes & solutions:\n` +
+                        `1. Test Users: In Google Cloud Console > "OAuth consent screen", ensure your personal Gmail is added under "Test users".\n` +
+                        `2. Application Type: In Credentials, ensure your OAuth client type is "Desktop app" (NOT "Web application").\n` +
+                        `3. Browser: If the browser did not launch automatically, copy and open the authorization URL above.`));
                 }, timeoutMs);
             });
             server.on('error', (err) => {
