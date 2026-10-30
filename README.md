@@ -248,11 +248,50 @@ Once installed, your agent automatically invokes `ditto deliver --json` when com
 
 | Command | Description |
 |---|---|
+| `ditto setup` | Run interactive wizard to install Antigravity skill & connect Google Drive |
 | `ditto auth` | Configure Google Cloud OAuth credentials and authenticate via browser |
 | `ditto deliver` | Compile debug APK, inspect metadata, upload to Drive, and return download URL |
 | `ditto deliver --json` | Machine-readable mode (outputs pure JSON to `stdout` for agents) |
 | `ditto status` | Display current canonical Drive file ID, permanent URLs, and last delivery details |
 | `ditto doctor` | Diagnose environment (Java, Gradle wrapper, OAuth validity, Drive connection) |
+| `ditto --version` | Display the installed Ditto version |
+
+---
+
+## 🗑️ Uninstalling Ditto
+
+To completely remove Ditto, its local configuration, and the Antigravity agent skill from your system:
+
+### 1. Remove the Global CLI
+```bash
+npm uninstall -g ditto-apk
+```
+
+### 2. Remove Local Configuration & Cached Tokens
+Ditto stores your configuration and tokens in `~/.ditto/`:
+
+```powershell
+# Windows (PowerShell):
+Remove-Item -Recurse -Force "$HOME\.ditto"
+```
+
+```bash
+# macOS / Linux:
+rm -rf ~/.ditto
+```
+
+### 3. Remove the Antigravity Agent Skill (Optional)
+If you installed the agent skill for Google Antigravity:
+
+```powershell
+# Windows (PowerShell):
+Remove-Item -Recurse -Force "$HOME\.gemini\config\skills\apk-delivery"
+```
+
+```bash
+# macOS / Linux:
+rm -rf ~/.gemini/config/skills/apk-delivery
+```
 
 ---
 
