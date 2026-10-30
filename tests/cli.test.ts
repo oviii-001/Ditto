@@ -164,4 +164,17 @@ describe('CLI Integration & Schema Verification', () => {
     expect(result.drive.overwritten).toBe(true);
     expect(saveStateSpy).toHaveBeenCalled();
   });
+
+  it('prints version when --version or -v is passed', async () => {
+    await runCli(['--version']);
+    expect(stdoutOutput).toContain('0.1.0');
+
+    stdoutOutput = '';
+    await runCli(['-v']);
+    expect(stdoutOutput).toContain('0.1.0');
+
+    stdoutOutput = '';
+    await runCli(['version']);
+    expect(stdoutOutput).toContain('0.1.0');
+  });
 });
