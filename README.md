@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Status](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#project-status)
+[![Release](https://img.shields.io/badge/release-v0.1.0-blue.svg)](CHANGELOG.md)
 
 > **Zero-clutter Android debug APK delivery automation for Google Antigravity & mobile developers.**  
 > One user. One permanent Google Drive testing link. Unlimited cross-project overwrites.
@@ -292,19 +292,6 @@ Remove-Item -Recurse -Force "$HOME\.gemini\config\skills\apk-delivery"
 # macOS / Linux:
 rm -rf ~/.gemini/config/skills/apk-delivery
 ```
-
----
-
-## 📋 Project Status
-
-| Phase | Milestone | Status |
-|---|---|---|
-| **Phase 1** | Project Scaffolding & Atomic State Engine | 🟢 Completed |
-| **Phase 2** | Android Build Engine & Dynamic APK Inspector | 🟢 Completed |
-| **Phase 3** | Google Drive Overwrite Engine (`files.update`) | 🟢 Completed |
-| **Phase 4** | CLI Router, Antigravity Skill, and E2E Tests | 🟢 Completed |
-
-See [tasks/plan.md](tasks/plan.md) and [tasks/todo.md](tasks/todo.md) for detailed task breakdowns and progress.
 
 ---
 
