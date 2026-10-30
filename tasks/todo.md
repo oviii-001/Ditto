@@ -8,11 +8,11 @@
 - [x] Checkpoint 1: Run `npm test` and verify Phase 1 passes
 
 ## Phase 2: Android Build Engine & Dynamic APK Inspector
-- [ ] Task 2.1: Gradle wrapper and Android project root detector (`src/android/gradle-detector.ts`)
-- [ ] Task 2.2: Build runner executing `assembleDebug` with child process timeout (`src/android/build-runner.ts`)
-- [ ] Task 2.3: Dynamic APK locator and binary `AndroidManifest.xml` parser (`src/android/apk-parser.ts`)
-- [ ] Task 2.4: Unit tests for Android detector and APK parser (`tests/android.test.ts`)
-- [ ] Checkpoint 2: Run `npm test` and verify Phase 2 passes
+- [x] Task 2.1: Gradle wrapper and Android project root detector (`src/android/gradle-detector.ts`)
+- [x] Task 2.2: Build runner executing `assembleDebug` with child process timeout (`src/android/build-runner.ts`)
+- [x] Task 2.3: Dynamic APK locator and binary `AndroidManifest.xml` parser (`src/android/apk-parser.ts`)
+- [x] Task 2.4: Unit tests for Android detector and APK parser (`tests/android.test.ts`)
+- [x] Checkpoint 2: Run `npm test` and verify Phase 2 passes
 
 ## Phase 3: Google Drive Integration & Overwrite Engine
 - [ ] Task 3.1: PKCE loopback OAuth client with token refresh (`src/drive/oauth-client.ts`)
