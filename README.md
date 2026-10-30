@@ -73,12 +73,12 @@ flowchart TD
 
 ## 🚀 Installation & Quick Start
 
-### Option A: One-Liner (No installation required)
+### Option A: Zero-Install Instant Setup (Recommended)
 
 Run the interactive setup wizard directly without installing anything beforehand:
 
 ```bash
-npx https://github.com/oviii-001/Ditto/archive/refs/heads/main.tar.gz setup
+npx github:oviii-001/Ditto setup
 ```
 
 ### Option B: Install Globally via npm
@@ -86,13 +86,16 @@ npx https://github.com/oviii-001/Ditto/archive/refs/heads/main.tar.gz setup
 Install Ditto as a global system command on your machine:
 
 ```bash
-# Recommended global install from GitHub:
-npm install -g https://github.com/oviii-001/Ditto/archive/refs/heads/main.tar.gz
+# Direct GitHub installation:
+npm install -g github:oviii-001/Ditto
 
-# Or install from npm registry (once published):
+# (Windows users): If your npm environment defaults to NTFS junctions, add --install-links:
+npm install -g --install-links github:oviii-001/Ditto
+
+# Or install from npm registry:
 npm install -g ditto-apk
 
-# Run the setup wizard:
+# Once installed, run setup:
 ditto setup
 ```
 
