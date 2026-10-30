@@ -12,6 +12,11 @@ export declare class OAuthManager {
         openBrowser?: boolean;
     }): Promise<OAuthTokens>;
     /**
+     * Safely open a URL in the user's default browser across Windows, macOS, and Linux
+     * without cmd.exe ampersand/quote corruption.
+     */
+    static openBrowser(url: string): void;
+    /**
      * Instantiate an authenticated OAuth2Client instance with automatic token refreshing.
      */
     static createClient(clientId: string, clientSecret: string, tokens: OAuthTokens, onTokenRefreshed?: (updatedTokens: OAuthTokens) => void): OAuth2Client;

@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { exec } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { OAuth2Client } from 'google-auth-library';
 export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 // Default OAuth credentials (can be pre-configured for open source releases, or overridden via env vars)
@@ -77,16 +77,7 @@ export class OAuthManager {
                 console.log('\n🔗 If your browser does not open automatically, visit this URL:');
                 console.log(`${authUrl}\n`);
                 if (shouldOpenBrowser) {
-                    const openCmd = process.platform === 'win32'
-                        ? `start "" "${authUrl}"`
-                        : process.platform === 'darwin'
-                            ? `open "${authUrl}"`
-                            : `xdg-open "${authUrl}"`;
-                    exec(openCmd, (err) => {
-                        if (err) {
-                            console.error(`Please open this URL in your browser:\n${authUrl}`);
-                        }
-                    });
+                    OAuthManager.openBrowser(authUrl);
                 }
                 timer = setTimeout(() => {
                     server.close();
@@ -102,6 +93,29 @@ export class OAuthManager {
                 reject(new Error(`Failed to start local OAuth loopback server: ${err.message}`));
             });
         });
+    }
+    /**
+     * Safely open a URL in the user's default browser across Windows, macOS, and Linux
+     * without cmd.exe ampersand/quote corruption.
+     */
+    static openBrowser(url) {
+        try {
+            if (process.platform === 'win32') {
+                const ps = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `Start-Process '${url.replace(/'/g, "''")}'`], { stdio: 'ignore', detached: true });
+                ps.unref();
+            }
+            else if (process.platform === 'darwin') {
+                const child = spawn('open', [url], { stdio: 'ignore', detached: true });
+                child.unref();
+            }
+            else {
+                const child = spawn('xdg-open', [url], { stdio: 'ignore', detached: true });
+                child.unref();
+            }
+        }
+        catch {
+            // Best-effort: URL is already printed to terminal
+        }
     }
     /**
      * Instantiate an authenticated OAuth2Client instance with automatic token refreshing.
