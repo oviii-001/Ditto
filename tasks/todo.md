@@ -15,10 +15,10 @@
 - [x] Checkpoint 2: Run `npm test` and verify Phase 2 passes
 
 ## Phase 3: Google Drive Integration & Overwrite Engine
-- [ ] Task 3.1: PKCE loopback OAuth client with token refresh (`src/drive/oauth-client.ts`)
-- [ ] Task 3.2: Drive manager with canonical file discovery, creation, and `files.update` overwrite (`src/drive/drive-manager.ts`)
-- [ ] Task 3.3: Integration tests for Google Drive client operations (`tests/drive-manager.test.ts`)
-- [ ] Checkpoint 3: Run `npm test` and verify Phase 3 passes
+- [x] Task 3.1: PKCE loopback OAuth client with token refresh (`src/drive/oauth-client.ts`)
+- [x] Task 3.2: Drive manager with canonical file discovery, creation, and `files.update` overwrite (`src/drive/drive-manager.ts`)
+- [x] Task 3.3: Integration tests for Google Drive client operations (`tests/drive-manager.test.ts`)
+- [x] Checkpoint 3: Run `npm test` and verify Phase 3 passes
 
 ## Phase 4: CLI Interface & Antigravity Agent Skill
 - [ ] Task 4.1: Executable CLI entrypoint and commands: `auth`, `deliver`, `status` (`bin/ditto.js`, `src/cli.ts`)
