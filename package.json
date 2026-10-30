@@ -12,12 +12,14 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "postinstall": "node scripts/postinstall.js"
   },
   "files": [
     "dist",
     "bin",
     "skills",
+    "scripts/postinstall.js",
     "README.md",
     "LICENSE"
   ],
