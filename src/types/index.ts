@@ -5,7 +5,7 @@
 export interface OAuthTokens {
   access_token?: string | null;
   refresh_token?: string | null;
-  scope?: string | null;
+  scope?: string;
   token_type?: string | null;
   expiry_date?: number | null;
 }

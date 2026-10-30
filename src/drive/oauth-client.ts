@@ -129,7 +129,13 @@ export class OAuthManager {
     onTokenRefreshed?: (updatedTokens: OAuthTokens) => void
   ): OAuth2Client {
     const client = new google.auth.OAuth2(clientId, clientSecret);
-    client.setCredentials(tokens);
+    client.setCredentials({
+      access_token: tokens.access_token || undefined,
+      refresh_token: tokens.refresh_token || undefined,
+      scope: tokens.scope || undefined,
+      token_type: tokens.token_type || undefined,
+      expiry_date: tokens.expiry_date || undefined,
+    });
 
     if (onTokenRefreshed) {
       client.on('tokens', (newTokens) => {
