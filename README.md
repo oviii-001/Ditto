@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Release](https://img.shields.io/badge/release-v0.1.0-blue.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v1.0.0-blue.svg)](CHANGELOG.md)
 
 > **Zero-clutter Android debug APK delivery automation for Google Antigravity & mobile developers.**  
 > One user. One permanent Google Drive testing link. Unlimited cross-project overwrites.

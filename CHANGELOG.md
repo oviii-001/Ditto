@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-10-30
+## [1.0.0] - 2026-10-30
 
 ### Added
+- First stable production release of Ditto.
 - Core architecture design specification and implementation plan.
 - Open source project structure with MIT License, CI workflow, and contribution guidelines.
 - Atomic `StateStore` with directory concurrency locks and stale-lock recovery (`~/.ditto/state.json`).
@@ -18,4 +19,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DriveManager` implementing single canonical file discovery via `appProperties`, public reader permissions, and in-place `files.update` APK replacement.
 - Production CLI command interface (`ditto auth`, `ditto deliver`, `ditto status`, `ditto doctor`) with machine-readable `--json` stream separation for AI agents.
 - Antigravity AI Agent Skill (`skills/apk-delivery/SKILL.md`).
-- Test suite with 18 automated unit and integration tests across storage, Android inspector, Drive manager, and CLI.
+- Automated unit and integration test suite across storage, Android inspector, Drive manager, and CLI.

@@ -10,7 +10,7 @@ import { ApkParser } from './android/apk-parser.js';
 import { SkillInstaller } from './skill-installer.js';
 import { DeliveryResult, DittoState } from './types/index.js';
 
-export const DITTO_VERSION = '0.1.0';
+export const DITTO_VERSION = '1.0.0';
 
 export async function runCli(argv: string[] = process.argv.slice(2)): Promise<void> {
   const args = argv.slice();

@@ -167,14 +167,14 @@ describe('CLI Integration & Schema Verification', () => {
 
   it('prints version when --version or -v is passed', async () => {
     await runCli(['--version']);
-    expect(stdoutOutput).toContain('0.1.0');
+    expect(stdoutOutput).toContain('1.0.0');
 
     stdoutOutput = '';
     await runCli(['-v']);
-    expect(stdoutOutput).toContain('0.1.0');
+    expect(stdoutOutput).toContain('1.0.0');
 
     stdoutOutput = '';
     await runCli(['version']);
-    expect(stdoutOutput).toContain('0.1.0');
+    expect(stdoutOutput).toContain('1.0.0');
   });
 });
