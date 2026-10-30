@@ -1,13 +1,18 @@
-# Ditto 📲⚡
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Release](https://img.shields.io/badge/release-v1.0.0-blue.svg)](CHANGELOG.md)
-
-> **Automated APK delivery skill for [Google Antigravity](https://antigravity.google.com).**  
-> Finish a task → APK uploaded to Drive → permanent link posted in chat → tap to install. One link, forever.  
-> Built for Android developers who use Antigravity's remote control to pair-program from their phone.
+<div align="center">
+  <img src="assets/ditto-logo.png" alt="Ditto Brand Logo" width="220" />
+  <h1>Ditto 📲⚡</h1>
+  <p>
+    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+    <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node.js Version" /></a>
+    <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
+    <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/release-v1.0.0-blue.svg" alt="Release" /></a>
+  </p>
+  <p>
+    <strong>Automated APK delivery skill for <a href="https://antigravity.google.com">Google Antigravity</a>.</strong><br />
+    Finish a task → APK uploaded to Drive → permanent link posted in chat → tap to install. One link, forever.<br />
+    <em>Built for Android developers who use Antigravity's remote control to pair-program from their phone.</em>
+  </p>
+</div>
 
 ---
 
