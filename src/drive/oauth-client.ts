@@ -7,6 +7,10 @@ import { OAuthTokens } from '../types/index.js';
 
 export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
+// Default OAuth credentials (can be pre-configured for open source releases, or overridden via env vars)
+export const DEFAULT_OAUTH_CLIENT_ID = process.env.DITTO_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '';
+export const DEFAULT_OAUTH_CLIENT_SECRET = process.env.DITTO_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '';
+
 export class OAuthManager {
   /**
    * Run the local loopback OAuth2 flow to authenticate the user and obtain refresh/access tokens.

@@ -1,7 +1,8 @@
 import readline from 'node:readline/promises';
 import { parseArgs } from 'node:util';
+import { exec } from 'node:child_process';
 import { StateStore } from './storage/state-store.js';
-import { OAuthManager } from './drive/oauth-client.js';
+import { OAuthManager, DEFAULT_OAUTH_CLIENT_ID, DEFAULT_OAUTH_CLIENT_SECRET } from './drive/oauth-client.js';
 import { DriveManager } from './drive/drive-manager.js';
 import { GradleDetector } from './android/gradle-detector.js';
 import { BuildRunner } from './android/build-runner.js';
@@ -16,7 +17,7 @@ export async function runCli(argv: string[] = process.argv.slice(2)): Promise<vo
 
   switch (command) {
     case 'auth':
-      await handleAuth(store);
+      await handleAuth(store, args.slice(1));
       break;
 
     case 'deliver':
@@ -43,35 +44,66 @@ export async function runCli(argv: string[] = process.argv.slice(2)): Promise<vo
   }
 }
 
-async function handleAuth(store: StateStore): Promise<void> {
-  console.log('\n=== Ditto Google Drive Authorization ===\n');
-  console.log('Ditto connects to Google Drive using your own Google Cloud OAuth Client ID.');
-  console.log('Scope requested: https://www.googleapis.com/auth/drive.file (Only files created by Ditto)\n');
+async function handleAuth(store: StateStore, args: string[] = []): Promise<void> {
+  const options = parseArgs({
+    args,
+    options: {
+      custom: { type: 'boolean', default: false },
+    },
+    allowPositionals: true,
+  });
 
   const existingState = store.loadState();
+  let clientId = existingState?.oauth?.clientId || DEFAULT_OAUTH_CLIENT_ID;
+  let clientSecret = existingState?.oauth?.clientSecret || DEFAULT_OAUTH_CLIENT_SECRET;
+
+  const forceCustom = options.values.custom;
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
   try {
-    const defaultClientId = existingState?.oauth?.clientId || '';
-    const defaultSecret = existingState?.oauth?.clientSecret || '';
+    // If no credentials or --custom requested, guide the developer
+    if (forceCustom || !clientId || !clientSecret) {
+      console.log('\n=== Ditto Google Drive Setup ===\n');
+      console.log('To link your Google Drive, enter your Google Cloud OAuth Client credentials.');
+      console.log('(Only needed once per machine. Permissions: drive.file only)\n');
 
-    const promptId = defaultClientId ? `Google Cloud Client ID [${defaultClientId}]: ` : 'Google Cloud Client ID: ';
-    let clientId = (await rl.question(promptId)).trim();
-    if (!clientId && defaultClientId) clientId = defaultClientId;
+      const openBrowserAns = (
+        await rl.question('Would you like Ditto to open Google Cloud Console for you? (Y/n): ')
+      ).trim().toLowerCase();
 
-    const promptSecret = defaultSecret ? `Google Cloud Client Secret [hidden]: ` : 'Google Cloud Client Secret: ';
-    let clientSecret = (await rl.question(promptSecret)).trim();
-    if (!clientSecret && defaultSecret) clientSecret = defaultSecret;
+      if (openBrowserAns !== 'n') {
+        const consoleUrl = 'https://console.cloud.google.com/apis/credentials';
+        const openCmd =
+          process.platform === 'win32'
+            ? `start "" "${consoleUrl}"`
+            : process.platform === 'darwin'
+            ? `open "${consoleUrl}"`
+            : `xdg-open "${consoleUrl}"`;
+        exec(openCmd);
+        console.log(`\nOpened: ${consoleUrl}`);
+        console.log('1. Click "Create Credentials" -> "OAuth client ID"');
+        console.log('2. Select "Desktop app"');
+        console.log('3. Copy your Client ID and Client Secret below:\n');
+      }
 
-    if (!clientId || !clientSecret) {
-      console.error('\nError: Both Client ID and Client Secret are required.');
-      process.exit(1);
+      const promptId = clientId ? `Google Client ID [${clientId}]: ` : 'Google Client ID: ';
+      let inputId = (await rl.question(promptId)).trim();
+      if (inputId) clientId = inputId;
+
+      const promptSecret = clientSecret ? `Google Client Secret [hidden]: ` : 'Google Client Secret: ';
+      let inputSecret = (await rl.question(promptSecret)).trim();
+      if (inputSecret) clientSecret = inputSecret;
+
+      if (!clientId || !clientSecret) {
+        console.error('\nError: Both Client ID and Client Secret are required.');
+        process.exit(1);
+      }
     }
 
-    console.log('\nOpening your browser for Google authentication...');
+    console.log('\n🚀 Opening your browser for Google authentication...');
     const tokens = await OAuthManager.authenticate(clientId, clientSecret, { openBrowser: true });
 
-    console.log('Verifying Google Drive storage...');
+    console.log('☁️ Verifying Google Drive storage...');
     const authClient = OAuthManager.createClient(clientId, clientSecret, tokens);
     const driveManager = new DriveManager(authClient);
 
@@ -92,6 +124,7 @@ async function handleAuth(store: StateStore): Promise<void> {
     console.log('\n✓ Authorization successful!');
     console.log(`✓ Canonical Drive file ready: ${canonicalFile.fileName} (${canonicalFile.fileId})`);
     console.log(`✓ Permanent Test Link: ${canonicalFile.webViewLink}\n`);
+    console.log('You can now run \'ditto deliver\' from any Android project or let Antigravity do it automatically!\n');
   } catch (err) {
     const error = err as Error;
     console.error(`\nAuthorization failed: ${error.message}`);

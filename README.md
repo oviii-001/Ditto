@@ -78,22 +78,26 @@ flowchart TD
 Install globally via npm or run directly via `npx`:
 
 ```bash
-# Global installation
+# Global installation (reusable anywhere)
 npm install -g ditto-apk
 
-# Or direct invocation via npx
+# Or test directly with npx without installing
 npx ditto-apk --help
 ```
 
-### 2. One-Time Google Drive Authorization
+### 2. Fast Setup (`ditto auth`)
 
-Ditto uses standard OAuth 2.0 PKCE desktop authentication with your own Google Cloud Client ID to avoid third-party servers:
+Run the setup wizard:
 
 ```bash
 ditto auth
 ```
 
-The CLI will guide you with instructions to create a free Google Cloud OAuth credential (or enter your existing Client ID/Secret) and open your browser to log in.
+1. **Automated Helper:** Ditto offers to open the Google Cloud Console credentials page directly in your browser.
+2. Select **"Desktop app"** and paste your Client ID & Secret.
+   *(You can also set `DITTO_CLIENT_ID` and `DITTO_CLIENT_SECRET` in your shell environment to bypass prompts entirely).*
+3. The browser opens to sign in with Google.
+4. **Done!** Ditto creates your permanent `Latest-debug.apk` file on Google Drive and outputs your permanent testing link.
 
 ### 3. Delivering an APK
 
@@ -107,7 +111,7 @@ Ditto will:
 1. Locate the Gradle wrapper (`gradlew` or `gradlew.bat`).
 2. Run `assembleDebug`.
 3. Locate the freshly generated `.apk` and parse its package ID and version.
-4. Overwrite your canonical Google Drive APK.
+4. Overwrite your canonical Google Drive APK in place.
 5. Print the permanent download link and summary.
 
 ---
