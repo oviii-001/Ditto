@@ -144,7 +144,10 @@ async function handleAuth(store: StateStore, args: string[] = []): Promise<void>
     const authClient = OAuthManager.createClient(clientId, clientSecret, tokens);
     const driveManager = new DriveManager(authClient);
 
-    const canonicalFile = await driveManager.getOrCreateCanonicalFile(existingState?.drive?.fileId);
+    const canonicalFile = await driveManager.getOrCreateCanonicalFile(
+      existingState?.drive?.fileId,
+      existingState?.drive?.folderId
+    );
 
     const newState: DittoState = {
       version: '1.0.0',
@@ -159,7 +162,10 @@ async function handleAuth(store: StateStore, args: string[] = []): Promise<void>
     store.saveState(newState);
 
     console.log('\n✓ Authorization successful!');
-    console.log(`✓ Canonical Drive file ready: ${canonicalFile.fileName} (${canonicalFile.fileId})`);
+    if (canonicalFile.folderId) {
+      console.log(`✓ Dedicated Folder:   Ditto/ (${canonicalFile.folderId})`);
+    }
+    console.log(`✓ Canonical File:     ${canonicalFile.fileName} (${canonicalFile.fileId})`);
     console.log(`✓ Permanent Test Link: ${canonicalFile.webViewLink}\n`);
     console.log('You can now run \'ditto deliver\' from any Android project or let Antigravity do it automatically!\n');
   } catch (err) {
@@ -256,7 +262,10 @@ async function handleDeliver(store: StateStore, args: string[]): Promise<void> {
       );
 
       const driveManager = new DriveManager(authClient);
-      const canonicalFile = await driveManager.getOrCreateCanonicalFile(state.drive?.fileId);
+      const canonicalFile = await driveManager.getOrCreateCanonicalFile(
+        state.drive?.fileId,
+        state.drive?.folderId
+      );
 
       // 5. Overwrite file in place
       logInfo(`🚀 Uploading & overwriting '${canonicalFile.fileName}' on Google Drive...`);
@@ -297,6 +306,7 @@ async function handleDeliver(store: StateStore, args: string[]): Promise<void> {
         },
         drive: {
           fileId: canonicalFile.fileId,
+          folderId: canonicalFile.folderId,
           webViewUrl: uploadRes.webViewLink,
           directDownloadUrl: uploadRes.webContentLink,
           overwritten: true,
@@ -351,6 +361,9 @@ async function handleStatus(store: StateStore, args: string[]): Promise<void> {
 
   if (state.drive) {
     console.log('\n--- Canonical Drive File ---');
+    if (state.drive.folderId) {
+      console.log(`Folder:            Ditto/ (${state.drive.folderId})`);
+    }
     console.log(`File Name:         ${state.drive.fileName}`);
     console.log(`File ID:           ${state.drive.fileId}`);
     console.log(`Permanent Link:    ${state.drive.webViewLink}`);
