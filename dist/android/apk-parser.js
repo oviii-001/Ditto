@@ -46,6 +46,11 @@ export class ApkParser {
         if (candidates.length === 0) {
             scanDir(projectRoot, 0);
         }
+        // If none found with timestamp filter (e.g. Gradle build was UP-TO-DATE),
+        // retry scan without sinceTimeMs filter
+        if (candidates.length === 0 && sinceTimeMs > 0) {
+            return this.findApk(projectRoot, 0);
+        }
         if (candidates.length === 0) {
             throw new Error(`No APK file found in '${projectRoot}'. Verify that the Gradle build task succeeded.`);
         }

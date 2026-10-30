@@ -140,6 +140,19 @@ describe('Android Build Engine & APK Inspector', () => {
       expect(found).toBe(appDebugApk);
     });
 
+    it('locates debug APK even when build is UP-TO-DATE (sinceTimeMs > file mtime)', () => {
+      const apkDir = path.join(tempDir, 'app', 'build', 'outputs', 'apk', 'debug');
+      fs.mkdirSync(apkDir, { recursive: true });
+
+      const appDebugApk = path.join(apkDir, 'app-debug.apk');
+      createMockZipWithStoredFile(appDebugApk, 'res.txt', Buffer.from('debug'));
+
+      // simulate build starting after APK was written
+      const futureBuildTime = Date.now() + 100000;
+      const found = ApkParser.findApk(tempDir, futureBuildTime);
+      expect(found).toBe(appDebugApk);
+    });
+
     it('parses APK metadata and falls back to merged manifest when available', () => {
       const apkPath = path.join(tempDir, 'test-app-debug.apk');
       createMockZipWithStoredFile(apkPath, 'res.txt', Buffer.from('dummy-content'));
