@@ -7,6 +7,7 @@ import { DriveManager } from './drive/drive-manager.js';
 import { GradleDetector } from './android/gradle-detector.js';
 import { BuildRunner } from './android/build-runner.js';
 import { ApkParser } from './android/apk-parser.js';
+import { SkillInstaller } from './skill-installer.js';
 import { DeliveryResult, DittoState } from './types/index.js';
 
 export async function runCli(argv: string[] = process.argv.slice(2)): Promise<void> {
@@ -16,6 +17,10 @@ export async function runCli(argv: string[] = process.argv.slice(2)): Promise<vo
   const store = new StateStore();
 
   switch (command) {
+    case 'setup':
+      await handleSetup(store, args.slice(1));
+      break;
+
     case 'auth':
       await handleAuth(store, args.slice(1));
       break;
@@ -42,6 +47,30 @@ export async function runCli(argv: string[] = process.argv.slice(2)): Promise<vo
       console.error(`Unknown command: '${command}'. Run 'ditto help' for available commands.`);
       process.exit(1);
   }
+}
+
+async function handleSetup(store: StateStore, args: string[]): Promise<void> {
+  console.log('\n=============================================');
+  console.log('   🚀 Welcome to Ditto Setup Wizard');
+  console.log('=============================================\n');
+
+  // Step 1: Install Antigravity Skill
+  console.log('[1/2] Installing Antigravity AI Agent Skill...');
+  try {
+    const { installedPath } = SkillInstaller.installSkill();
+    console.log(`✓ Skill installed to: ${installedPath}`);
+  } catch (err) {
+    const error = err as Error;
+    console.warn(`⚠️ Could not auto-install Antigravity skill: ${error.message}`);
+  }
+
+  // Step 2: Run Auth
+  console.log('\n[2/2] Connecting Google Drive...');
+  await handleAuth(store, args);
+
+  console.log('=============================================');
+  console.log('🎉 Setup Complete! You are ready to deliver APKs.');
+  console.log('=============================================\n');
 }
 
 async function handleAuth(store: StateStore, args: string[] = []): Promise<void> {
@@ -361,7 +390,8 @@ Usage:
   ditto <command> [options]
 
 Commands:
-  auth                 Configure Google Cloud OAuth credentials and log in
+  setup [options]      All-in-one setup: installs Antigravity skill & connects Google Drive
+  auth [options]       Configure Google Cloud OAuth credentials and log in
   deliver [options]    Build debug APK, inspect metadata, overwrite Drive APK, and return link
   status [options]     Display current configuration and last delivered build
   doctor               Diagnose environment, configuration, and connectivity

@@ -71,48 +71,72 @@ flowchart TD
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Installation & Quick Start
 
-### 1. Installation
+### Option A: One-Liner (No installation required)
 
-Install globally via npm or run directly via `npx`:
+Run the interactive setup wizard directly from GitHub without installing anything beforehand:
 
 ```bash
-# Global installation (reusable anywhere)
+npx github:oviii-001/Ditto setup
+```
+
+### Option B: Install Globally via npm
+
+Install Ditto as a global system command on your machine:
+
+```bash
+# Install directly from GitHub:
+npm install -g github:oviii-001/Ditto
+
+# Or install from npm registry (once published):
 npm install -g ditto-apk
 
-# Or test directly with npx without installing
-npx ditto-apk --help
+# Run the 1-minute setup wizard:
+ditto setup
 ```
 
-### 2. Fast Setup (`ditto auth`)
-
-Run the setup wizard:
+### Option C: From Source (Developers & Contributors)
 
 ```bash
-ditto auth
+git clone https://github.com/oviii-001/Ditto.git
+cd Ditto
+npm install
+npm link
+ditto setup
 ```
 
-1. **Automated Helper:** Ditto offers to open the Google Cloud Console credentials page directly in your browser.
-2. Select **"Desktop app"** and paste your Client ID & Secret.
-   *(You can also set `DITTO_CLIENT_ID` and `DITTO_CLIENT_SECRET` in your shell environment to bypass prompts entirely).*
-3. The browser opens to sign in with Google.
-4. **Done!** Ditto creates your permanent `Latest-debug.apk` file on Google Drive and outputs your permanent testing link.
+---
 
-### 3. Delivering an APK
+### What Does `ditto setup` Do Automatically?
 
-From any Android project directory:
+When you run `ditto setup`, it:
+1. **Auto-installs the Antigravity Skill:** Detects your local Antigravity installation (`~/.gemini/config/skills/apk-delivery/` or `%USERPROFILE%\.gemini\...`) and copies the agent skill so your AI pair programmer knows how to deliver APKs right away.
+2. **Connects Google Drive:** Guides you through signing in with your Google account via browser and configures least-privilege `drive.file` access.
+3. **Creates the Canonical Drive File:** Sets up your permanent `Latest-debug.apk` file on Drive with public reader access and outputs your permanent download link.
+
+---
+
+## 📲 Everyday Usage
+
+Once setup is complete, you never need to run setup again!
+
+### 1. Fully Autonomous (with Antigravity AI Agent)
+
+Just talk to Antigravity as usual when developing your Android app:
+> *"Finish implementing the new user profile screen and build the APK for testing."*
+
+Antigravity writes the code, compiles the build, runs `ditto deliver --json` in the background, and returns your permanent testing link directly in chat.
+
+### 2. Manual CLI (from any terminal)
+
+Inside any Android project directory on your machine:
 
 ```bash
 ditto deliver
 ```
 
-Ditto will:
-1. Locate the Gradle wrapper (`gradlew` or `gradlew.bat`).
-2. Run `assembleDebug`.
-3. Locate the freshly generated `.apk` and parse its package ID and version.
-4. Overwrite your canonical Google Drive APK in place.
-5. Print the permanent download link and summary.
+Ditto compiles `assembleDebug`, detects the generated APK, updates your permanent Google Drive file in place, and prints the download link.
 
 ---
 
