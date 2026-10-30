@@ -1,11 +1,11 @@
 # Ditto Development Checklist
 
 ## Phase 1: Project Scaffolding & State Engine
-- [ ] Task 1.1: Project initialization (package.json, tsconfig.json, Vitest config, build scripts)
-- [ ] Task 1.2: Type definitions (`src/types/index.ts`)
-- [ ] Task 1.3: State store implementation with atomic `.tmp` swap and directory lock (`src/storage/state-store.ts`)
-- [ ] Task 1.4: Unit tests for state persistence and concurrency locking (`tests/state-store.test.ts`)
-- [ ] Checkpoint 1: Run `npm test` and verify Phase 1 passes
+- [x] Task 1.1: Project initialization (package.json, tsconfig.json, Vitest config, build scripts)
+- [x] Task 1.2: Type definitions (`src/types/index.ts`)
+- [x] Task 1.3: State store implementation with atomic `.tmp` swap and directory lock (`src/storage/state-store.ts`)
+- [x] Task 1.4: Unit tests for state persistence and concurrency locking (`tests/state-store.test.ts`)
+- [x] Checkpoint 1: Run `npm test` and verify Phase 1 passes
 
 ## Phase 2: Android Build Engine & Dynamic APK Inspector
 - [ ] Task 2.1: Gradle wrapper and Android project root detector (`src/android/gradle-detector.ts`)
