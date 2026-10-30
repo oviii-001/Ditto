@@ -120,6 +120,68 @@ When you run `ditto setup`, it:
 
 ---
 
+## 🔑 Google Cloud Console Setup (One-Time & 100% Free)
+
+Ditto connects to your Google Drive using Google's standard OAuth 2.0 Desktop App protocol.
+
+> [!NOTE]
+> **Zero Cost ($0.00 / Free Forever):**  
+> Google Drive API provides **1,000,000,000 free requests per day**. Google does **not** charge for personal desktop OAuth authentication, and **no credit card or paid billing account is required**.
+
+### Step 1: Create a Google Cloud Project
+1. Open [Google Cloud Console](https://console.cloud.google.com/).
+2. Click the project dropdown at the top-left and select **New Project**.
+3. Name it **Ditto APK Delivery** (or any name you prefer) and click **Create**.
+
+### Step 2: Enable the Google Drive API
+1. In your project, go to **APIs & Services > Library** (or search for `Google Drive API`).
+2. Select **Google Drive API** and click **Enable**.
+
+### Step 3: Configure the OAuth Consent Screen
+1. Go to **APIs & Services > OAuth consent screen**.
+2. Select **External** user type and click **Create**.
+3. Fill in the basic app details:
+   - **App name:** `Ditto`
+   - **User support email:** Select your Gmail address.
+   - **Developer contact information:** Enter your email address.
+   - Click **Save and Continue**.
+4. **Scopes:** Click **Add or Remove Scopes**, find and select:
+   - `https://www.googleapis.com/auth/drive.file` *(View and manage Google Drive files that you have opened or created with this app)*.
+   - Click **Update** and then **Save and Continue**.
+5. **Test users:** Under "Test users", click **Add Users** and enter your personal Google email address (the one you will sign in with).
+6. Click **Save and Continue**.
+
+### Step 4: Create Desktop OAuth Client Credentials
+1. Go to **APIs & Services > Credentials**.
+2. Click **+ Create Credentials** at the top and select **OAuth client ID**.
+3. In the **Application type** dropdown, select **Desktop app**.
+4. Name it **Ditto Desktop** and click **Create**.
+5. A modal will pop up displaying your **Client ID** and **Client Secret**. Copy both values.
+
+### Step 5: Connect Ditto
+Run the setup wizard in your terminal:
+```bash
+ditto setup
+```
+When prompted:
+1. Ditto asks if you want to open Google Cloud Console (press Enter or `n` if already open).
+2. Paste your **Client ID**.
+3. Paste your **Client Secret**.
+4. Ditto will immediately launch your browser to sign in with your Google account.
+5. Click **Allow** on the consent screen.
+
+Your tokens are saved securely to `~/.ditto/state.json`. You never have to configure this again!
+
+> [!TIP]
+> **Environment Variables Alternative:**  
+> You can also bypass the interactive prompts by setting environment variables in your terminal profile (`.bashrc`, `.zshrc`, or PowerShell `$PROFILE`):
+> ```bash
+> export DITTO_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+> export DITTO_CLIENT_SECRET="your-client-secret"
+> ```
+
+---
+
 ## 📲 Everyday Usage
 
 Once setup is complete, you never need to run setup again!
