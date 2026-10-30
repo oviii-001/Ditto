@@ -10,11 +10,19 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "prepare": "tsc",
     "watch": "tsc -w",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepack": "npm run build"
   },
+  "files": [
+    "dist",
+    "bin",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "antigravity",
     "android",
@@ -25,9 +33,6 @@
   ],
   "author": "Ditto Contributors",
   "license": "MIT",
-  "dependencies": {
-    "googleapis": "^144.0.0"
-  },
   "devDependencies": {
     "@types/node": "^22.10.1",
     "typescript": "^5.7.2",
@@ -35,5 +40,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@googleapis/drive": "^27.0.0",
+    "google-auth-library": "^11.3.2"
   }
 }

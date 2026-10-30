@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { google, drive_v3 } from 'googleapis';
+import { drive, drive_v3 } from '@googleapis/drive';
 import { OAuth2Client } from 'google-auth-library';
 import { CanonicalDriveFile } from '../types/index.js';
 
@@ -10,7 +10,7 @@ export class DriveManager {
   private drive: drive_v3.Drive;
 
   constructor(authClient: OAuth2Client) {
-    this.drive = google.drive({ version: 'v3', auth: authClient });
+    this.drive = drive({ version: 'v3', auth: authClient as any });
   }
 
   public getRawDrive(): drive_v3.Drive {

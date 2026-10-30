@@ -1,7 +1,6 @@
 import http from 'node:http';
 import { AddressInfo } from 'node:net';
 import { exec } from 'node:child_process';
-import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { OAuthTokens } from '../types/index.js';
 
@@ -87,7 +86,7 @@ export class OAuthManager {
         const port = address.port;
         const redirectUri = `http://127.0.0.1:${port}/oauth2callback`;
 
-        oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+        oauth2Client = new OAuth2Client(clientId, clientSecret, redirectUri);
 
         const authUrl = oauth2Client.generateAuthUrl({
           access_type: 'offline',
@@ -132,7 +131,7 @@ export class OAuthManager {
     tokens: OAuthTokens,
     onTokenRefreshed?: (updatedTokens: OAuthTokens) => void
   ): OAuth2Client {
-    const client = new google.auth.OAuth2(clientId, clientSecret);
+    const client = new OAuth2Client(clientId, clientSecret);
     client.setCredentials({
       access_token: tokens.access_token || undefined,
       refresh_token: tokens.refresh_token || undefined,

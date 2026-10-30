@@ -1,0 +1,9 @@
+# Files to ignore in npm package
+tests/
+tasks/
+docs/
+.github/
+.git/
+vitest.config.ts
+tsconfig.json
+*.log
