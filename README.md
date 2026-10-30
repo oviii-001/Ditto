@@ -20,10 +20,9 @@ AI coding assistants like **Google Antigravity** empower developers to build and
 
 ## ✨ The Solution: Ditto
 
-**Ditto** gives your AI agent (or CI/terminal workflow) a single, reliable command:
-```bash
-ditto deliver
-```
+**Ditto** gives **Google Antigravity** the autonomous capability to build, inspect, and deliver fresh Android debug APKs straight to your physical device.
+
+You don't need Android Studio open, you don't need emulators, and you never have to type build commands into a terminal. You simply chat with Antigravity as you normally do, and the built-in skill handles the compilation, packaging, and in-place cloud replacement silently in the background.
 
 ### Key Principles
 
@@ -40,11 +39,11 @@ ditto deliver
 
 ```mermaid
 flowchart TD
-    subgraph Antigravity["Google Antigravity IDE / CLI"]
+    subgraph Antigravity["Google Antigravity"]
         Agent["AI Coding Agent"]
-        Skill["Antigravity Skill\n(apk-delivery)"]
-        Agent -->|Invokes| Skill
-        Skill -->|Executes| CLI["ditto deliver --json"]
+        Skill["apk-delivery Skill"]
+        Agent -->|Invokes autonomously| Skill
+        Skill -->|Executes in background| CLI["ditto deliver --json"]
     end
 
     subgraph Host["Developer Machine"]
@@ -197,61 +196,85 @@ Your tokens are saved securely to `~/.ditto/state.json`. You never have to confi
 
 ---
 
-## 📲 Everyday Usage
+## 🤖 How to Use in Google Antigravity (Zero IDE & Zero CLI)
 
-Once setup is complete, you never need to run setup again!
+The core principle of Ditto is that **you never need an IDE (like Android Studio) or a command line terminal**. Once setup is done, your entire workflow happens through natural conversation inside **Google Antigravity**.
 
-### 1. Fully Autonomous (with Antigravity AI Agent)
+### 1. Hands-Free Automatic Delivery (Default)
 
-Just talk to Antigravity as usual when developing your Android app:
-> *"Finish implementing the new user profile screen and build the APK for testing."*
+Whenever you ask Antigravity to build, edit, fix, or refactor anything in an Android project, the built-in `apk-delivery` skill automatically activates as soon as the code changes are complete.
 
-Antigravity writes the code, compiles the build, runs `ditto deliver --json` in the background, and returns your permanent testing link directly in chat.
+**Conversational examples you say to Antigravity:**
+> *"Add biometric authentication to the login screen."*  
+> *"Fix the crash when opening the profile picture gallery."*  
+> *"Refactor the network layer to use Ktor and make sure it builds."*
 
-### 2. Manual CLI (from any terminal)
-
-Inside any Android project directory on your machine:
-
-```bash
-ditto deliver
-```
-
-Ditto compiles `assembleDebug`, detects the generated APK, updates your permanent Google Drive file in place, and prints the download link.
+**What Antigravity does autonomously:**
+1. Antigravity writes the Kotlin / Compose code and runs project checks.
+2. The `apk-delivery` skill triggers behind the scenes.
+3. Antigravity compiles `gradlew assembleDebug` in the background, extracts APK metadata (package name, version, SHA-256), and in-place updates your permanent `Latest-debug.apk` file on Google Drive.
+4. Antigravity posts an interactive completion card directly into the chat with your permanent download link.
 
 ---
 
-## 🤖 Antigravity AI Agent Integration
+### 2. On-Demand Chat Prompts
 
-Ditto includes a global Antigravity Skill that enables your AI pair programmer to automatically deliver APKs after finishing tasks.
+You can also prompt Antigravity at any moment to deliver the latest build without making code changes:
 
-### Install the Skill in Antigravity
+- 💬 *"Deliver the APK to my phone"*
+- 💬 *"Build the debug APK and send it to my Google Drive link"*
+- 💬 *"Ship this build so I can test it on my physical device"*
+- 💬 *"Give me the latest APK download link"*
 
-Copy `skills/apk-delivery` to your Antigravity skills directory:
+Antigravity executes the delivery pipeline in the background and returns your download card immediately.
 
-- **Windows:** `%USERPROFILE%\.gemini\antigravity\skills\apk-delivery\`
-- **macOS / Linux:** `~/.gemini/antigravity/skills/apk-delivery/`
+---
 
-Once installed, your agent automatically invokes `ditto deliver --json` when completing Android tasks and posts an interactive summary card in the chat:
+### 3. The "Bookmark Once, Test Forever" Mobile Workflow
+
+Because Ditto continuously updates the exact same file on Google Drive across all your projects:
+
+1. **Bookmark the link on your phone:** Open your permanent download link in your phone's browser (e.g., Chrome) once, and tap **"Add to Home screen"** or save it to bookmarks.
+2. **Develop from anywhere:** Code with Antigravity from your laptop, desktop, or even remotely from your mobile device.
+3. **Instant Installation:** Whenever Antigravity finishes a task or you ask for a build, simply open that same home screen icon on your phone to download and install the freshest build. No digging through chat history, no multiple links, and zero storage clutter.
+
+---
+
+### 📱 What You See in Antigravity Chat
+
+When a delivery succeeds, Antigravity renders a structured notification card directly in your conversation:
 
 > ### 📱 Android Build Ready for Testing!
 > - **Project:** DIU Campus Schedule (`com.diu.schedule`)
 > - **Version:** 1.0.4 (Build 42)
 > - **Size:** 18.4 MB
-> - **SHA-256:** `3a4b...b210`
-> - **Download Link:** [Download Latest-debug.apk](https://drive.google.com/file/d/1a2b3c4d5e.../view?usp=sharing)
->
+> - **Build Time:** 22.4s | **Upload:** 6.8s
+> - **Permanent Download Link:** [Download Latest-debug.apk](https://drive.google.com/file/d/1a2b3c4d5e.../view?usp=sharing)
+> 
 > *(This replaces the previous test build on your phone's permanent testing link).*
 
 ---
 
-## 💻 CLI Command Reference
+### 📦 Antigravity Skill Installation Details
+
+When you run `ditto setup` (or `npx github:oviii-001/Ditto setup`), the skill is automatically placed in your Antigravity skills directory:
+- **Windows:** `%USERPROFILE%\.gemini\config\skills\apk-delivery\SKILL.md`
+- **macOS / Linux:** `~/.gemini/config/skills/apk-delivery/SKILL.md`
+
+Antigravity discovers new skills dynamically without requiring an application restart.
+
+---
+
+## 💻 Manual Terminal / CLI Reference (Optional)
+
+If you are writing custom CI/CD automation scripts or prefer triggering builds manually from a command prompt:
 
 | Command | Description |
 |---|---|
+| `ditto deliver` | Compile debug APK, inspect metadata, upload to Drive in-place, and return URL |
+| `ditto deliver --json` | Agent mode (outputs pure JSON to `stdout`, logs to `stderr`) |
 | `ditto setup` | Run interactive wizard to install Antigravity skill & connect Google Drive |
-| `ditto auth` | Configure Google Cloud OAuth credentials and authenticate via browser |
-| `ditto deliver` | Compile debug APK, inspect metadata, upload to Drive, and return download URL |
-| `ditto deliver --json` | Machine-readable mode (outputs pure JSON to `stdout` for agents) |
+| `ditto auth` | Re-authenticate Google Cloud OAuth credentials via browser |
 | `ditto status` | Display current canonical Drive file ID, permanent URLs, and last delivery details |
 | `ditto doctor` | Diagnose environment (Java, Gradle wrapper, OAuth validity, Drive connection) |
 | `ditto --version` | Display the installed Ditto version |
