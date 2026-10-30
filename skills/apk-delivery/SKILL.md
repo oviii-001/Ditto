@@ -23,10 +23,13 @@ After your Android code changes are in place and compile cleanly:
 Run the delivery command from the Android project root directory:
 
 ```bash
-npx ditto-apk deliver --json
+ditto deliver --json
 ```
 
-*(If installed globally or in local development, `ditto deliver --json` also works).*
+If `ditto` is not found or not in PATH, use:
+```bash
+npx github:oviii-001/Ditto deliver --json
+```
 
 ### 2. Processing the Result
 
