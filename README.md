@@ -8,9 +8,9 @@
     <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/release-v1.0.0-blue.svg" alt="Release" /></a>
   </p>
   <p>
-    <strong>Automated APK delivery skill for <a href="https://antigravity.google.com">Google Antigravity</a>.</strong><br />
-    Finish a task → APK uploaded to Drive → permanent link posted in chat → tap to install. One link, forever.<br />
-    <em>Built for Android developers who use Antigravity's remote control to pair-program from their phone.</em>
+    <strong>Automated APK delivery & visual feedback skills for <a href="https://antigravity.google.com">Google Antigravity</a>.</strong><br />
+    Deliver debug APKs to phone on a permanent link → test remotely → share bug screenshots to Drive → Antigravity pulls, purges remote (Inbox Zero), and fixes code.<br />
+    <em>Built for Android developers pair-programming via Antigravity's remote control from their phone.</em>
   </p>
 </div>
 
@@ -315,11 +315,63 @@ No digging through chat history. No multiple links. One bookmark, works forever.
 
 ---
 
-### 📦 Skill Location
+## 📸 Inbound Visual Feedback: The `apk-feedback` Skill
 
-The skill file is installed at:
-- **Windows:** `%USERPROFILE%\.gemini\config\skills\apk-delivery\SKILL.md`
-- **macOS / Linux:** `~/.gemini/config/skills/apk-delivery/SKILL.md`
+When pair-programming with Antigravity through remote control on your phone, **you cannot attach images directly into the chat**. If you spot a visual defect, misaligned padding, or truncated text while testing the APK on your phone, how do you show Antigravity the bug?
+
+Ditto solves this with the **"Ephemeral Buffer / Inbox Zero"** pattern:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer (Phone)
+    participant Drive as Google Drive (Ditto/Screenshots/)
+    participant Agent as Antigravity Agent (Workstation)
+    participant Code as Android Project Codebase
+
+    Dev->>Dev: Spot UI bug on physical device
+    Dev->>Dev: Take 1 or more screenshots
+    Dev->>Drive: Native Share Sheet -> Save to 'Ditto/Screenshots/'
+    Dev->>Agent: Chat: "Check the screenshots of the broken layout"
+    Agent->>Drive: ditto feedback --json
+    Drive-->>Agent: Download images to .ditto/screenshots/
+    Agent->>Drive: Immediate hard-delete (drive.files.delete) [Inbox Zero]
+    Agent->>Agent: Inspects images locally via read_file tool
+    Agent->>Code: Fixes UI composables / layout XML
+    Agent->>Drive: ditto deliver --json (Overwrites Latest-debug.apk)
+    Agent-->>Dev: Chat: "Fixed layout padding! Updated APK ready."
+```
+
+### Why This Architecture is Senior-Grade:
+
+1. **Multi-Screenshot Native Batching**:
+   Android's system Share Sheet lets you select multiple images in Google Photos / Gallery simultaneously $\to$ Share $\to$ Drive $\to$ `Ditto/Screenshots` $\to$ Save.
+2. **Immediate Remote Purge (Inbox Zero)**:
+   Once Ditto streams the images into `.ditto/screenshots/`, it immediately deletes them from Google Drive.
+   - Zero Drive storage wasted.
+   - The remote folder is drained back to 0 files, so the agent is **never confused by stale screenshots** from yesterday.
+3. **Pre-Build Auto-Sweep**:
+   When `ditto deliver` runs to deploy an updated APK, it automatically sweeps and purges any abandoned screenshots, guaranteeing a fresh start for every test cycle.
+
+### Invoking `apk-feedback`
+
+Just say in chat:
+- 💬 *"Check my screenshots"*
+- 💬 *"Look at the UI bug I found on my phone"*
+- 💬 `/apk-feedback`
+- 💬 *"I uploaded 2 screenshots of the checkout screen, please fix the layout"*
+
+---
+
+### 📦 Installed Skills
+
+Ditto installs two complementary skills to Antigravity:
+- **`apk-delivery`**: Outbound delivery (Workstation $\to$ Google Drive $\to$ Phone).
+- **`apk-feedback`**: Inbound visual feedback (Phone screenshots $\to$ Google Drive $\to$ Workstation).
+
+**Locations:**
+- **Windows:** `%USERPROFILE%\.gemini\config\skills\apk-delivery\` & `...\apk-feedback\`
+- **macOS / Linux:** `~/.gemini/config/skills/apk-delivery/` & `.../apk-feedback/`
 
 Antigravity discovers skills dynamically—no restart required after installation.
 
@@ -327,16 +379,17 @@ Antigravity discovers skills dynamically—no restart required after installatio
 
 ## 🗑️ Uninstalling Ditto
 
-### 1. Remove the Antigravity Skill
+### 1. Remove the Antigravity Skills
 
 ```powershell
 # Windows (PowerShell):
 Remove-Item -Recurse -Force "$HOME\.gemini\config\skills\apk-delivery"
+Remove-Item -Recurse -Force "$HOME\.gemini\config\skills\apk-feedback"
 ```
 
 ```bash
 # macOS / Linux:
-rm -rf ~/.gemini/config/skills/apk-delivery
+rm -rf ~/.gemini/config/skills/apk-delivery ~/.gemini/config/skills/apk-feedback
 ```
 
 ### 2. Remove Local Configuration & Cached Tokens

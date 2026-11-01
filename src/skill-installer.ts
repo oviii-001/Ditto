@@ -4,47 +4,85 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 export class SkillInstaller {
+  public static readonly SKILL_NAMES = ['apk-delivery', 'apk-feedback'];
+
   /**
-   * Detects Antigravity skills directories and installs the apk-delivery skill automatically.
+   * Detects Antigravity skills directories and installs bundled skills automatically.
    */
-  public static installSkill(customTargetDir?: string): { installedPath: string; isNew: boolean } {
+  public static installSkill(customTargetDir?: string): {
+    installedPath: string;
+    isNew: boolean;
+    installedSkills: string[];
+  } {
     const home = os.homedir();
-    const candidateDirs = [
-      path.join(home, '.gemini', 'config', 'skills', 'apk-delivery'),
-      path.join(home, '.gemini', 'antigravity', 'skills', 'apk-delivery'),
-      path.join(home, '.antigravity', 'skills', 'apk-delivery'),
+    const candidateRoots = [
+      path.join(home, '.gemini', 'config', 'skills'),
+      path.join(home, '.gemini', 'antigravity', 'skills'),
+      path.join(home, '.antigravity', 'skills'),
     ];
 
-    // Find our bundled SKILL.md
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    const bundledSkillPath = path.resolve(__dirname, '..', 'skills', 'apk-delivery', 'SKILL.md');
 
-    if (!fs.existsSync(bundledSkillPath)) {
-      throw new Error(`Bundled skill definition not found at: ${bundledSkillPath}`);
-    }
+    const installedSkills: string[] = [];
+    let primaryInstalledPath = '';
+    let primaryIsNew = false;
 
-    const skillContent = fs.readFileSync(bundledSkillPath, 'utf8');
+    if (customTargetDir) {
+      // Custom single-directory support (e.g., unit tests targeting a specific directory)
+      const bundledSkillPath = path.resolve(__dirname, '..', 'skills', 'apk-delivery', 'SKILL.md');
+      if (!fs.existsSync(bundledSkillPath)) {
+        throw new Error(`Bundled skill definition not found at: ${bundledSkillPath}`);
+      }
+      fs.mkdirSync(customTargetDir, { recursive: true });
+      const targetFile = path.join(customTargetDir, 'SKILL.md');
+      const isNew = !fs.existsSync(targetFile);
+      fs.writeFileSync(targetFile, fs.readFileSync(bundledSkillPath, 'utf8'), 'utf8');
+      primaryInstalledPath = targetFile;
+      primaryIsNew = isNew;
+      installedSkills.push(targetFile);
 
-    // Pick target: prefer customTargetDir if provided, else prefer candidate whose parent exists
-    let targetDir = customTargetDir;
-    if (!targetDir) {
-      targetDir = candidateDirs[0];
-      for (const dir of candidateDirs) {
-        const parentDir = path.dirname(dir);
-        if (fs.existsSync(parentDir)) {
-          targetDir = dir;
+      // If parent is a skills container, also install sibling apk-feedback
+      const parentDir = path.dirname(customTargetDir);
+      const feedbackBundled = path.resolve(__dirname, '..', 'skills', 'apk-feedback', 'SKILL.md');
+      if (fs.existsSync(feedbackBundled)) {
+        const feedbackDir = path.join(parentDir, 'apk-feedback');
+        fs.mkdirSync(feedbackDir, { recursive: true });
+        const feedbackTarget = path.join(feedbackDir, 'SKILL.md');
+        fs.writeFileSync(feedbackTarget, fs.readFileSync(feedbackBundled, 'utf8'), 'utf8');
+        installedSkills.push(feedbackTarget);
+      }
+    } else {
+      // Standard multi-skill installation across detected Antigravity directory
+      let chosenRoot = candidateRoots[0];
+      for (const root of candidateRoots) {
+        if (fs.existsSync(root) || fs.existsSync(path.dirname(root))) {
+          chosenRoot = root;
           break;
+        }
+      }
+
+      for (const skillName of this.SKILL_NAMES) {
+        const bundledPath = path.resolve(__dirname, '..', 'skills', skillName, 'SKILL.md');
+        if (fs.existsSync(bundledPath)) {
+          const targetDir = path.join(chosenRoot, skillName);
+          fs.mkdirSync(targetDir, { recursive: true });
+          const targetFile = path.join(targetDir, 'SKILL.md');
+          const isNew = !fs.existsSync(targetFile);
+          fs.writeFileSync(targetFile, fs.readFileSync(bundledPath, 'utf8'), 'utf8');
+          installedSkills.push(targetFile);
+          if (skillName === 'apk-delivery') {
+            primaryInstalledPath = targetFile;
+            primaryIsNew = isNew;
+          }
         }
       }
     }
 
-    fs.mkdirSync(targetDir, { recursive: true });
-    const targetFile = path.join(targetDir, 'SKILL.md');
-    const isNew = !fs.existsSync(targetFile);
-
-    fs.writeFileSync(targetFile, skillContent, 'utf8');
-
-    return { installedPath: targetFile, isNew };
+    return {
+      installedPath: primaryInstalledPath,
+      isNew: primaryIsNew,
+      installedSkills,
+    };
   }
 }

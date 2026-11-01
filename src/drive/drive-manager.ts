@@ -1,11 +1,14 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import { drive, drive_v3 } from '@googleapis/drive';
 import { OAuth2Client } from 'google-auth-library';
-import { CanonicalDriveFile } from '../types/index.js';
+import { CanonicalDriveFile, ScreenshotItem } from '../types/index.js';
 
 export const CANONICAL_APK_NAME = 'Latest-debug.apk';
 export const DITTO_FOLDER_NAME = 'Ditto';
+export const SCREENSHOTS_FOLDER_NAME = 'Screenshots';
 export const DITTO_APP_TAG = 'ditto';
+export const DITTO_SCREENSHOTS_TAG = 'screenshots-inbox';
 
 export class DriveManager {
   private drive: drive_v3.Drive;
@@ -80,6 +83,82 @@ export class DriveManager {
         appProperties: {
           app: DITTO_APP_TAG,
           role: 'ditto-folder',
+        },
+      },
+      fields: 'id',
+    });
+
+    return createRes.data.id!;
+  }
+
+  /**
+   * Resolves or creates the dedicated 'Ditto/Screenshots' folder on Google Drive.
+   */
+  public async getOrCreateScreenshotsFolder(
+    preferredFolderId?: string,
+    preferredParentDittoFolderId?: string
+  ): Promise<string> {
+    const parentFolderId = await this.getOrCreateDittoFolder(preferredParentDittoFolderId);
+
+    // 1. Try preferred folder ID from local state
+    if (preferredFolderId) {
+      try {
+        const res = await this.drive.files.get({
+          fileId: preferredFolderId,
+          fields: 'id, name, trashed, mimeType, parents',
+        });
+
+        if (
+          res.data.id &&
+          !res.data.trashed &&
+          res.data.mimeType === 'application/vnd.google-apps.folder'
+        ) {
+          return res.data.id;
+        }
+      } catch {
+        // Fall through to discovery/creation
+      }
+    }
+
+    // 2. Search for existing subfolder inside Ditto with appProperties
+    try {
+      const searchRes = await this.drive.files.list({
+        q: `'${parentFolderId}' in parents and appProperties has { key='app' and value='${DITTO_APP_TAG}' } and appProperties has { key='role' and value='${DITTO_SCREENSHOTS_TAG}' } and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+        fields: 'files(id, name)',
+        pageSize: 1,
+      });
+
+      if (searchRes.data.files && searchRes.data.files.length > 0) {
+        return searchRes.data.files[0].id!;
+      }
+    } catch {
+      // Continue to name search
+    }
+
+    // 3. Fallback: Search for folder by name inside Ditto
+    try {
+      const nameSearchRes = await this.drive.files.list({
+        q: `'${parentFolderId}' in parents and name = '${SCREENSHOTS_FOLDER_NAME}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+        fields: 'files(id, name)',
+        pageSize: 1,
+      });
+
+      if (nameSearchRes.data.files && nameSearchRes.data.files.length > 0) {
+        return nameSearchRes.data.files[0].id!;
+      }
+    } catch {
+      // Continue to creation
+    }
+
+    // 4. Create fresh 'Screenshots' subfolder inside 'Ditto'
+    const createRes = await this.drive.files.create({
+      requestBody: {
+        name: SCREENSHOTS_FOLDER_NAME,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [parentFolderId],
+        appProperties: {
+          app: DITTO_APP_TAG,
+          role: DITTO_SCREENSHOTS_TAG,
         },
       },
       fields: 'id',
@@ -268,6 +347,115 @@ export class DriveManager {
       // If permission already exists or fails gracefully, log and continue
       const error = err as { code?: number; message?: string };
       // 409 or already exists is fine
+    }
+  }
+
+  /**
+   * Pulls pending screenshots from Drive, saves them locally, and immediately hard-deletes them
+   * from Drive so the remote folder remains at Inbox Zero.
+   */
+  public async pullScreenshots(
+    targetLocalDir: string,
+    options?: { limit?: number; folderId?: string }
+  ): Promise<ScreenshotItem[]> {
+    const folderId = options?.folderId || (await this.getOrCreateScreenshotsFolder());
+    fs.mkdirSync(targetLocalDir, { recursive: true });
+
+    const listRes = await this.drive.files.list({
+      q: `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`,
+      fields: 'files(id, name, mimeType, size, createdTime)',
+      orderBy: 'createdTime asc',
+      pageSize: options?.limit && options.limit > 0 ? options.limit : 100,
+    });
+
+    const files = listRes.data.files || [];
+    const items: ScreenshotItem[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.id) continue;
+
+      // Clean file naming
+      const ext = path.extname(file.name || '') || (file.mimeType?.includes('jpeg') ? '.jpg' : '.png');
+      const baseRaw = path.basename(file.name || `screenshot_${Date.now()}_${i + 1}`, ext);
+      const cleanBase = baseRaw.replace(/[^a-zA-Z0-9._-]/g, '_');
+      let targetFilename = `${cleanBase}${ext}`;
+      let targetPath = path.join(targetLocalDir, targetFilename);
+
+      // Handle local collision
+      let counter = 1;
+      while (fs.existsSync(targetPath)) {
+        targetFilename = `${cleanBase}_${counter}${ext}`;
+        targetPath = path.join(targetLocalDir, targetFilename);
+        counter++;
+      }
+
+      // Download file stream
+      const streamRes = await this.drive.files.get(
+        { fileId: file.id, alt: 'media' },
+        { responseType: 'stream' }
+      );
+
+      await new Promise<void>((resolve, reject) => {
+        if (typeof (streamRes.data as any)?.pipe === 'function') {
+          const dest = fs.createWriteStream(targetPath);
+          dest.on('finish', () => resolve());
+          dest.on('error', reject);
+          (streamRes.data as any).on('error', reject);
+          (streamRes.data as any).pipe(dest);
+        } else if (Buffer.isBuffer(streamRes.data)) {
+          fs.writeFileSync(targetPath, streamRes.data);
+          resolve();
+        } else if (streamRes.data instanceof ArrayBuffer) {
+          fs.writeFileSync(targetPath, Buffer.from(streamRes.data));
+          resolve();
+        } else {
+          fs.writeFileSync(targetPath, Buffer.from(String(streamRes.data)));
+          resolve();
+        }
+      });
+
+      // Immediate Remote Hard-Delete (Inbox Zero)
+      await this.drive.files.delete({ fileId: file.id });
+
+      items.push({
+        id: file.id,
+        name: file.name || targetFilename,
+        localPath: targetPath,
+        createdTime: file.createdTime || undefined,
+        sizeBytes: file.size ? Number(file.size) : undefined,
+        mimeType: file.mimeType || undefined,
+      });
+    }
+
+    return items;
+  }
+
+  /**
+   * Purges all files in the screenshots folder (e.g., during pre-build sweep).
+   */
+  public async purgeScreenshots(preferredFolderId?: string): Promise<number> {
+    const folderId = await this.getOrCreateScreenshotsFolder(preferredFolderId);
+    try {
+      const listRes = await this.drive.files.list({
+        q: `'${folderId}' in parents and trashed = false`,
+        fields: 'files(id)',
+        pageSize: 100,
+      });
+
+      const files = listRes.data.files || [];
+      for (const f of files) {
+        if (f.id) {
+          try {
+            await this.drive.files.delete({ fileId: f.id });
+          } catch {
+            // Ignore single delete failures
+          }
+        }
+      }
+      return files.length;
+    } catch {
+      return 0;
     }
   }
 }

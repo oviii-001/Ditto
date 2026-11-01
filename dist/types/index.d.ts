@@ -11,6 +11,7 @@ export interface OAuthTokens {
 export interface CanonicalDriveFile {
     fileId: string;
     folderId?: string;
+    screenshotsFolderId?: string;
     fileName: string;
     webViewLink: string;
     webContentLink: string;
@@ -71,5 +72,21 @@ export interface DeliveryResult {
         directDownloadUrl: string;
         overwritten: boolean;
     };
+    error?: string;
+}
+export interface ScreenshotItem {
+    id: string;
+    name: string;
+    localPath: string;
+    createdTime?: string;
+    sizeBytes?: number;
+    mimeType?: string;
+}
+export interface FeedbackResult {
+    status: 'success' | 'error';
+    count: number;
+    remotePurged: number;
+    screenshots: ScreenshotItem[];
+    destinationDir?: string;
     error?: string;
 }

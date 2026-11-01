@@ -1,9 +1,11 @@
 import { drive_v3 } from '@googleapis/drive';
 import { OAuth2Client } from 'google-auth-library';
-import { CanonicalDriveFile } from '../types/index.js';
+import { CanonicalDriveFile, ScreenshotItem } from '../types/index.js';
 export declare const CANONICAL_APK_NAME = "Latest-debug.apk";
 export declare const DITTO_FOLDER_NAME = "Ditto";
+export declare const SCREENSHOTS_FOLDER_NAME = "Screenshots";
 export declare const DITTO_APP_TAG = "ditto";
+export declare const DITTO_SCREENSHOTS_TAG = "screenshots-inbox";
 export declare class DriveManager {
     private drive;
     constructor(authClient: OAuth2Client);
@@ -12,6 +14,10 @@ export declare class DriveManager {
      * Resolves or creates the dedicated 'Ditto' folder on Google Drive.
      */
     getOrCreateDittoFolder(preferredFolderId?: string): Promise<string>;
+    /**
+     * Resolves or creates the dedicated 'Ditto/Screenshots' folder on Google Drive.
+     */
+    getOrCreateScreenshotsFolder(preferredFolderId?: string, preferredParentDittoFolderId?: string): Promise<string>;
     /**
      * Moves a file into the target folder if not already inside it.
      */
@@ -36,4 +42,16 @@ export declare class DriveManager {
      * Ensure 'anyone' with link has 'reader' permission on the Drive file.
      */
     ensurePublicReader(fileId: string): Promise<void>;
+    /**
+     * Pulls pending screenshots from Drive, saves them locally, and immediately hard-deletes them
+     * from Drive so the remote folder remains at Inbox Zero.
+     */
+    pullScreenshots(targetLocalDir: string, options?: {
+        limit?: number;
+        folderId?: string;
+    }): Promise<ScreenshotItem[]>;
+    /**
+     * Purges all files in the screenshots folder (e.g., during pre-build sweep).
+     */
+    purgeScreenshots(preferredFolderId?: string): Promise<number>;
 }

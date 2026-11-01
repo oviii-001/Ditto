@@ -83,3 +83,7 @@ When `status === "success"`, post a clear, formatted card in your conversation r
 If `status === "error"`:
 - If the error states `Ditto is not authorized`: Tell the user to run `ditto auth` in their terminal to connect their Google Drive.
 - If the error is a Gradle compilation failure: Provide the Gradle error summary from `error` and offer to fix the build issue before retrying.
+
+### 5. Receiving Visual Feedback
+
+When the user tests this build on their phone and takes screenshots of issues or bugs, they share them to Google Drive $\to$ `Ditto/Screenshots/`. Use the **`apk-feedback`** skill (`ditto feedback --json`) to automatically pull the screenshots locally, purge them from Drive, inspect them, and fix the bugs.

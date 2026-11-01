@@ -36,4 +36,19 @@ describe('SkillInstaller', () => {
     const secondResult = SkillInstaller.installSkill(targetDir);
     expect(secondResult.isNew).toBe(false);
   });
+
+  it('installs both apk-delivery and apk-feedback skills', () => {
+    const targetDir = path.join(tempDir, 'skills', 'apk-delivery');
+    const result = SkillInstaller.installSkill(targetDir);
+
+    expect(result.installedSkills.length).toBeGreaterThanOrEqual(2);
+
+    const feedbackPath = path.join(tempDir, 'skills', 'apk-feedback', 'SKILL.md');
+    expect(fs.existsSync(feedbackPath)).toBe(true);
+
+    const feedbackContent = fs.readFileSync(feedbackPath, 'utf8');
+    expect(feedbackContent).toContain('name: apk-feedback');
+    expect(feedbackContent).toContain('Android APK Visual Feedback for Antigravity');
+    expect(feedbackContent).toContain('ditto feedback --json');
+  });
 });

@@ -5,6 +5,7 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import { runCli } from '../src/cli.js';
 import { StateStore } from '../src/storage/state-store.js';
+import { DriveManager } from '../src/drive/drive-manager.js';
 import { DittoState } from '../src/types/index.js';
 
 describe('CLI Integration & Schema Verification', () => {
@@ -176,5 +177,88 @@ describe('CLI Integration & Schema Verification', () => {
     stdoutOutput = '';
     await runCli(['version']);
     expect(stdoutOutput).toContain('1.0.0');
+  });
+
+  describe('feedback command', () => {
+    it('outputs error JSON when running feedback without prior authentication', async () => {
+      vi.spyOn(StateStore.prototype, 'loadState').mockReturnValue(null);
+
+      await expect(runCli(['feedback', '--json'])).rejects.toThrow(/process.exit/);
+
+      expect(stdoutOutput).toContain('"status": "error"');
+      expect(stdoutOutput).toContain('Ditto is not authorized');
+    });
+
+    it('runs feedback successfully with JSON output', async () => {
+      const mockState: DittoState = {
+        version: '1.0.0',
+        oauth: {
+          clientId: 'mock-client',
+          clientSecret: 'mock-secret',
+          tokens: { access_token: 'valid-token' },
+        },
+        drive: {
+          fileId: 'perm-file-789',
+          folderId: 'folder-123',
+          screenshotsFolderId: 'ss-folder-456',
+          fileName: 'Latest-debug.apk',
+          webViewLink: 'https://drive.google.com/file/d/perm-file-789/view',
+          webContentLink: 'https://drive.google.com/uc?id=perm-file-789',
+          createdAt: '2026-10-30T10:00:00Z',
+        },
+      };
+
+      vi.spyOn(StateStore.prototype, 'loadState').mockReturnValue(mockState);
+      vi.spyOn(StateStore.prototype, 'saveState').mockImplementation(() => {});
+
+      const mockItems = [
+        {
+          id: 'img-1',
+          name: 'bug.png',
+          localPath: path.join(tempProjectDir, '.ditto', 'screenshots', 'bug.png'),
+          createdTime: '2026-11-01T12:00:00Z',
+          sizeBytes: 1024,
+        },
+      ];
+
+      vi.spyOn(DriveManager.prototype, 'getOrCreateScreenshotsFolder').mockResolvedValue('ss-folder-456');
+      vi.spyOn(DriveManager.prototype, 'pullScreenshots').mockResolvedValue(mockItems);
+
+      await runCli(['feedback', '--json', '--dir', tempProjectDir]);
+
+      const jsonOutput = stdoutOutput.trim();
+      const result = JSON.parse(jsonOutput);
+
+      expect(result.status).toBe('success');
+      expect(result.count).toBe(1);
+      expect(result.remotePurged).toBe(1);
+      expect(result.screenshots[0].id).toBe('img-1');
+      expect(result.screenshots[0].name).toBe('bug.png');
+    });
+
+    it('handles feedback --clear to purge remote inbox', async () => {
+      const mockState: DittoState = {
+        version: '1.0.0',
+        oauth: {
+          clientId: 'mock-client',
+          clientSecret: 'mock-secret',
+          tokens: { access_token: 'valid-token' },
+        },
+      };
+
+      vi.spyOn(StateStore.prototype, 'loadState').mockReturnValue(mockState);
+      vi.spyOn(DriveManager.prototype, 'getOrCreateScreenshotsFolder').mockResolvedValue('ss-folder-456');
+      const purgeSpy = vi.spyOn(DriveManager.prototype, 'purgeScreenshots').mockResolvedValue(4);
+
+      await runCli(['feedback', '--json', '--clear']);
+
+      const jsonOutput = stdoutOutput.trim();
+      const result = JSON.parse(jsonOutput);
+
+      expect(result.status).toBe('success');
+      expect(result.count).toBe(0);
+      expect(result.remotePurged).toBe(4);
+      expect(purgeSpy).toHaveBeenCalledWith('ss-folder-456');
+    });
   });
 });

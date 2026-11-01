@@ -2,7 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { DriveManager, CANONICAL_APK_NAME, DITTO_FOLDER_NAME, DITTO_APP_TAG } from '../src/drive/drive-manager.js';
+import {
+  DriveManager,
+  CANONICAL_APK_NAME,
+  DITTO_FOLDER_NAME,
+  SCREENSHOTS_FOLDER_NAME,
+  DITTO_APP_TAG,
+  DITTO_SCREENSHOTS_TAG,
+} from '../src/drive/drive-manager.js';
 import { OAuth2Client } from 'google-auth-library';
 
 describe('DriveManager', () => {
@@ -11,6 +18,7 @@ describe('DriveManager', () => {
   let mockFilesList: any;
   let mockFilesCreate: any;
   let mockFilesUpdate: any;
+  let mockFilesDelete: any;
   let mockPermissionsCreate: any;
   let driveManager: DriveManager;
 
@@ -24,12 +32,14 @@ describe('DriveManager', () => {
     mockFilesList = vi.fn();
     mockFilesCreate = vi.fn();
     mockFilesUpdate = vi.fn();
+    mockFilesDelete = vi.fn().mockResolvedValue({});
     mockPermissionsCreate = vi.fn();
 
     rawDrive.files.get = mockFilesGet;
     rawDrive.files.list = mockFilesList;
     rawDrive.files.create = mockFilesCreate;
     rawDrive.files.update = mockFilesUpdate;
+    rawDrive.files.delete = mockFilesDelete;
     rawDrive.permissions.create = mockPermissionsCreate;
   });
 
@@ -249,6 +259,148 @@ describe('DriveManager', () => {
           fs.unlinkSync(tempFile);
         }
       }
+    });
+  });
+
+  describe('getOrCreateScreenshotsFolder', () => {
+    it('reuses preferred folderId when it exists and is a folder', async () => {
+      // Mock parent folder get
+      mockFilesGet
+        .mockResolvedValueOnce({
+          data: {
+            id: 'ditto-folder-1',
+            name: DITTO_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+          },
+        })
+        // Mock screenshots folder get
+        .mockResolvedValueOnce({
+          data: {
+            id: 'ss-pref-1',
+            name: SCREENSHOTS_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+          },
+        });
+
+      const folderId = await driveManager.getOrCreateScreenshotsFolder('ss-pref-1', 'ditto-folder-1');
+      expect(folderId).toBe('ss-pref-1');
+    });
+
+    it('creates fresh Screenshots subfolder inside Ditto folder when none exists', async () => {
+      mockFilesGet.mockResolvedValueOnce({
+        data: {
+          id: 'ditto-folder-1',
+          name: DITTO_FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+          trashed: false,
+        },
+      });
+      mockFilesList.mockResolvedValue({ data: { files: [] } });
+      mockFilesCreate.mockResolvedValue({ data: { id: 'new-ss-folder-999' } });
+
+      const folderId = await driveManager.getOrCreateScreenshotsFolder(undefined, 'ditto-folder-1');
+      expect(folderId).toBe('new-ss-folder-999');
+      expect(mockFilesCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestBody: expect.objectContaining({
+            name: SCREENSHOTS_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            parents: ['ditto-folder-1'],
+            appProperties: { app: DITTO_APP_TAG, role: DITTO_SCREENSHOTS_TAG },
+          }),
+        })
+      );
+    });
+  });
+
+  describe('pullScreenshots & purgeScreenshots (Inbox Zero)', () => {
+    let localTempDir: string;
+
+    beforeEach(() => {
+      localTempDir = path.join(os.tmpdir(), `ditto-test-ss-${Date.now()}`);
+      fs.mkdirSync(localTempDir, { recursive: true });
+    });
+
+    afterEach(() => {
+      if (fs.existsSync(localTempDir)) {
+        fs.rmSync(localTempDir, { recursive: true, force: true });
+      }
+    });
+
+    it('downloads remote screenshots locally and immediately hard-deletes remote files from Drive', async () => {
+      mockFilesList.mockResolvedValue({
+        data: {
+          files: [
+            {
+              id: 'remote-ss-1',
+              name: 'bug_1.png',
+              mimeType: 'image/png',
+              size: '1024',
+              createdTime: '2026-11-01T12:00:00Z',
+            },
+            {
+              id: 'remote-ss-2',
+              name: 'bug_2.png',
+              mimeType: 'image/png',
+              size: '2048',
+              createdTime: '2026-11-01T12:01:00Z',
+            },
+          ],
+        },
+      });
+
+      mockFilesGet.mockResolvedValue({
+        data: Buffer.from('fake-png-binary-stream-data'),
+      });
+
+      const items = await driveManager.pullScreenshots(localTempDir, { folderId: 'ss-folder-1' });
+
+      expect(items).toHaveLength(2);
+      expect(items[0].name).toBe('bug_1.png');
+      expect(fs.existsSync(items[0].localPath)).toBe(true);
+      expect(fs.existsSync(items[1].localPath)).toBe(true);
+
+      // Verify immediate remote deletion for Inbox Zero
+      expect(mockFilesDelete).toHaveBeenCalledTimes(2);
+      expect(mockFilesDelete).toHaveBeenCalledWith({ fileId: 'remote-ss-1' });
+      expect(mockFilesDelete).toHaveBeenCalledWith({ fileId: 'remote-ss-2' });
+    });
+
+    it('returns empty array when no files are waiting in Drive inbox', async () => {
+      mockFilesList.mockResolvedValue({ data: { files: [] } });
+
+      const items = await driveManager.pullScreenshots(localTempDir, { folderId: 'ss-folder-1' });
+      expect(items).toEqual([]);
+      expect(mockFilesDelete).not.toHaveBeenCalled();
+    });
+
+    it('purges all remote files during pre-build sweep', async () => {
+      // Mock screenshots folder resolution
+      mockFilesGet.mockResolvedValueOnce({
+        data: {
+          id: 'ditto-folder-1',
+          name: DITTO_FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+          trashed: false,
+        },
+      });
+      mockFilesList
+        // list for getOrCreateScreenshotsFolder
+        .mockResolvedValueOnce({
+          data: { files: [{ id: 'ss-folder-1' }] },
+        })
+        // list for purgeScreenshots
+        .mockResolvedValueOnce({
+          data: {
+            files: [{ id: 'stale-1' }, { id: 'stale-2' }, { id: 'stale-3' }],
+          },
+        });
+
+      const purgedCount = await driveManager.purgeScreenshots('ss-folder-1');
+      expect(purgedCount).toBe(3);
+      expect(mockFilesDelete).toHaveBeenCalledTimes(3);
     });
   });
 });
