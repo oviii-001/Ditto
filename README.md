@@ -131,9 +131,29 @@ ditto setup
 ### What Does `ditto setup` Do Automatically?
 
 When you run `ditto setup`, it:
-1. **Auto-installs the Antigravity Skill:** Detects your local Antigravity installation (`~/.gemini/config/skills/apk-delivery/` or `%USERPROFILE%\.gemini\...`) and copies the agent skill so your AI pair programmer knows how to deliver APKs right away.
+1. **Auto-installs the Antigravity Skills:** Detects your local Antigravity installation (`~/.gemini/config/skills/`) and installs both `apk-delivery` and `apk-feedback` so your AI pair programmer can deliver APKs and inspect bug screenshots.
 2. **Connects Google Drive:** Guides you through signing in with your Google account via browser and configures least-privilege `drive.file` access.
-3. **Creates the Dedicated Drive Folder & File:** Sets up a dedicated `Ditto/` folder and your permanent `Ditto/Builds/Latest-debug.apk` file on Drive with public reader access ready for automated delivery.
+3. **Creates Dedicated Drive Folders:** Sets up a dedicated `Ditto/` parent folder, `Ditto/Builds/` (with your permanent `Latest-debug.apk`), and `Ditto/Screenshots/` (inbound staging buffer) with public reader access ready for automated delivery.
+
+---
+
+## 🔄 Updating Ditto
+
+When new features or bug fixes are released, updating Ditto and your Antigravity skills is a single command:
+
+```bash
+ditto update
+```
+
+**What `ditto update` does automatically:**
+1. **Updates the CLI:** Pulls and installs the latest Ditto CLI package globally via npm.
+2. **Refreshes Antigravity Skills:** Updates `apk-delivery` and `apk-feedback` in `~/.gemini/config/skills/` with the latest prompt instructions and tools.
+3. **Preserves Your Settings:** Your existing Google OAuth credentials, Drive folder IDs, and permanent APK download links are preserved safely without re-authenticating.
+
+To check if an update is available without installing:
+```bash
+ditto update --check
+```
 
 ---
 

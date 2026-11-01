@@ -292,6 +292,44 @@ describe('CLI Integration & Schema Verification', () => {
     consoleSpy.mockRestore();
   });
 
+  it('handles update --check reporting latest version without executing install', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const { Updater } = await import('../src/updater.js');
+    vi.spyOn(Updater, 'checkForUpdates').mockResolvedValue({
+      currentVersion: '1.1.0',
+      latestVersion: '1.2.0',
+      hasUpdate: true,
+    });
+    const installSpy = vi.spyOn(Updater, 'installLatestCli').mockResolvedValue();
+
+    await runCli(['update', '--check']);
+
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Update available'));
+    expect(installSpy).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
+  it('handles update command by running updater and refreshing skills', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const { Updater } = await import('../src/updater.js');
+    vi.spyOn(Updater, 'checkForUpdates').mockResolvedValue({
+      currentVersion: '1.1.0',
+      latestVersion: '1.1.0',
+      hasUpdate: false,
+    });
+    const installSpy = vi.spyOn(Updater, 'installLatestCli').mockResolvedValue();
+    const refreshSpy = vi.spyOn(Updater, 'refreshSkills').mockReturnValue({
+      installedSkills: ['/mock/skill.md'],
+    });
+
+    await runCli(['update']);
+
+    expect(installSpy).toHaveBeenCalled();
+    expect(refreshSpy).toHaveBeenCalled();
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Update complete!'));
+    consoleSpy.mockRestore();
+  });
+
   it('exits with code 1 for unknown commands', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(runCli(['unrecognized-cmd'])).rejects.toThrow(/process.exit/);
@@ -306,6 +344,8 @@ describe('CLI Integration & Schema Verification', () => {
     expect(index.ApkParser).toBeDefined();
     expect(index.OAuthManager).toBeDefined();
     expect(index.DriveManager).toBeDefined();
+    expect(index.SkillInstaller).toBeDefined();
+    expect(index.Updater).toBeDefined();
     expect(index.runCli).toBeDefined();
   });
 });

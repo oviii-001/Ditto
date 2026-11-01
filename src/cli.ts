@@ -10,6 +10,7 @@ import { GradleDetector } from './android/gradle-detector.js';
 import { BuildRunner } from './android/build-runner.js';
 import { ApkParser } from './android/apk-parser.js';
 import { SkillInstaller } from './skill-installer.js';
+import { Updater } from './updater.js';
 import { DeliveryResult, DittoState, FeedbackResult } from './types/index.js';
 
 export const DITTO_VERSION = '1.1.0';
@@ -45,6 +46,11 @@ export async function runCli(argv: string[] = process.argv.slice(2)): Promise<vo
 
     case 'doctor':
       await handleDoctor(store);
+      break;
+
+    case 'update':
+    case 'upgrade':
+      await handleUpdate(args.slice(1));
       break;
 
     case 'version':
@@ -568,22 +574,85 @@ async function handleDoctor(store: StateStore): Promise<void> {
   console.log('\n=== Ditto Environment Doctor ===\n');
 
   console.log(`[1] Node.js Version: ${process.version} (>= 18 required) ✓`);
+  console.log(`[2] Ditto Version: v${DITTO_VERSION} ✓`);
 
   // Check state store
   const state = store.loadState();
   if (state?.oauth?.tokens) {
-    console.log(`[2] Ditto State: Configured at ${store.getStateFilePath()} ✓`);
-    console.log(`[3] Google Drive Auth: Connected with Client ID (${state.oauth.clientId.substring(0, 12)}...) ✓`);
+    console.log(`[3] Ditto State: Configured at ${store.getStateFilePath()} ✓`);
+    console.log(`[4] Google Drive Auth: Connected with Client ID (${state.oauth.clientId.substring(0, 12)}...) ✓`);
     if (state.drive?.fileId) {
-      console.log(`[4] Canonical File: ${state.drive.fileId} (${state.drive.fileName}) ✓`);
+      console.log(`[5] Canonical File: ${state.drive.fileId} (${state.drive.fileName}) ✓`);
+      if (state.drive.buildsFolderId) {
+        console.log(`[6] Builds Folder: ${state.drive.buildsFolderId} (Ditto/Builds/) ✓`);
+      }
+      if (state.drive.screenshotsFolderId) {
+        console.log(`[7] Screenshots Folder: ${state.drive.screenshotsFolderId} (Ditto/Screenshots/) ✓`);
+      }
     } else {
-      console.log(`[4] Canonical File: Not initialized yet (will be created on first deliver) ⚠️`);
+      console.log(`[5] Canonical File: Not initialized yet (will be created on first deliver) ⚠️`);
     }
   } else {
-    console.log(`[2] Ditto State: Not configured ⚠️  (Run 'ditto auth')`);
+    console.log(`[3] Ditto State: Not configured ⚠️  (Run 'ditto auth')`);
   }
 
   console.log('\nAll core diagnostics complete.\n');
+}
+
+async function handleUpdate(args: string[] = []): Promise<void> {
+  const isCheck = args.includes('--check');
+
+  console.log('\n=============================================');
+  console.log('   🔄 Ditto Version & Update Manager');
+  console.log('=============================================\n');
+
+  console.log(`Current installed version: v${DITTO_VERSION}`);
+  console.log('Checking for updates...');
+
+  const check = await Updater.checkForUpdates(DITTO_VERSION);
+  if (check.latestVersion) {
+    console.log(`Latest available version:  v${check.latestVersion}`);
+    if (!check.hasUpdate) {
+      console.log('\n✓ You are already on the latest version of Ditto!');
+      if (isCheck) return;
+    } else {
+      console.log(`\n⚡ Update available: v${DITTO_VERSION} → v${check.latestVersion}`);
+      if (isCheck) {
+        console.log("Run 'ditto update' to upgrade automatically.\n");
+        return;
+      }
+    }
+  } else {
+    console.log('Latest available version:  (Unable to reach GitHub; proceeding with refresh)');
+    if (isCheck) {
+      console.log('Could not determine remote version. Check your internet connection.\n');
+      return;
+    }
+  }
+
+  console.log('\n[1/2] Updating Ditto CLI globally via npm...');
+  try {
+    await Updater.installLatestCli();
+    console.log('✓ Successfully downloaded and updated Ditto CLI package!');
+  } catch (err) {
+    const error = err as Error;
+    console.warn(`⚠️  Warning: Global npm update encountered an issue: ${error.message}`);
+    console.log(`You can also run manually: npm install -g ${Updater.NPM_PACKAGE}`);
+  }
+
+  console.log('\n[2/2] Refreshing Antigravity AI agent skills...');
+  try {
+    const skillResult = Updater.refreshSkills();
+    console.log(`✓ Synchronized ${skillResult.installedSkills.length} Antigravity skills:`);
+    for (const skillFile of skillResult.installedSkills) {
+      console.log(`  - ${skillFile}`);
+    }
+  } catch (err) {
+    const error = err as Error;
+    console.error(`✗ Failed to update Antigravity skills: ${error.message}`);
+  }
+
+  console.log('\n✓ Update complete! Your existing Google Drive authorization & settings were preserved.\n');
 }
 
 function printHelp(): void {
@@ -600,6 +669,8 @@ Commands:
   feedback [options]   Pull mobile test screenshots to .ditto/screenshots/ and purge remote
   status [options]     Display current configuration and last delivered build
   doctor               Diagnose environment, configuration, and connectivity
+  update [options]     Update Ditto to the latest version & refresh Antigravity skills
+  version              Print current version
   help                 Display this help menu
 
 Options for 'deliver':
@@ -613,5 +684,8 @@ Options for 'feedback':
   --dir <path>         Target Android project directory (default: current directory)
   --limit <number>     Limit number of recent screenshots to pull
   --clear              Purge all remote screenshots on Drive without downloading
+
+Options for 'update':
+  --check              Check if an update is available without installing
 `);
 }

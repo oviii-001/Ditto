@@ -5,5 +5,7 @@ export * from './android/build-runner.js';
 export * from './android/apk-parser.js';
 export * from './drive/oauth-client.js';
 export * from './drive/drive-manager.js';
+export * from './skill-installer.js';
+export * from './updater.js';
 export * from './cli.js';
 //# sourceMappingURL=index.js.map

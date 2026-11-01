@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2026-11-01
 
 ### Added
+- **Built-in `ditto update` Command**: Effortlessly upgrades the CLI package globally and synchronizes local Antigravity skills (`apk-delivery` and `apk-feedback`) without losing Google Drive credentials or configuration. Supports `--check` for non-invasive version verification.
 - **Symmetrical Two-Way Architecture**: Dedicated subfolders on Google Drive: `Ditto/Builds/` (outbound `Latest-debug.apk`) and `Ditto/Screenshots/` (inbound feedback buffer).
 - **`apk-feedback` Skill**: Automated incoming mobile bug screenshot ingestion into `.ditto/screenshots/` with immediate remote Drive cleanup (Inbox Zero) and UI defect inspection.
 - **Automated Legacy Migration**: Transparently migrates existing canonical APKs from Drive root or `Ditto/` into `Ditto/Builds/` without changing file IDs or breaking permanent sharing URLs.
