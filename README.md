@@ -5,7 +5,7 @@
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
     <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node.js Version" /></a>
     <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
-    <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/release-v1.0.0-blue.svg" alt="Release" /></a>
+    <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/release-v1.1.0-blue.svg" alt="Release" /></a>
   </p>
   <p>
     <strong>Automated APK delivery & visual feedback skills for <a href="https://antigravity.google.com">Google Antigravity</a>.</strong><br />

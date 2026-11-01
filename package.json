@@ -1,6 +1,6 @@
 {
   "name": "ditto-apk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Zero-clutter Android debug APK delivery automation for Google Antigravity & mobile developers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

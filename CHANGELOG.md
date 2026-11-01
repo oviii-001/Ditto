@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-01
+
+### Added
+- **Symmetrical Two-Way Architecture**: Dedicated subfolders on Google Drive: `Ditto/Builds/` (outbound `Latest-debug.apk`) and `Ditto/Screenshots/` (inbound feedback buffer).
+- **`apk-feedback` Skill**: Automated incoming mobile bug screenshot ingestion into `.ditto/screenshots/` with immediate remote Drive cleanup (Inbox Zero) and UI defect inspection.
+- **Automated Legacy Migration**: Transparently migrates existing canonical APKs from Drive root or `Ditto/` into `Ditto/Builds/` without changing file IDs or breaking permanent sharing URLs.
+- **Quality Test Suites**: Added targeted test coverage for regression edge cases (`tests/regression.test.ts`), performance benchmarks (`tests/performance.test.ts`), and security hardening (`tests/security.test.ts`).
+
+### Security
+- **Path Traversal Defense**: Sanitized incoming remote screenshot filenames (`pullScreenshots`) by stripping illegal path traversal sequences (`../`), ensuring file writes are strictly contained within `.ditto/screenshots/`.
+- **Command Injection Hardening**: Added validation to reject URL control characters (`\r`, `\n`) and enforce safe protocols (`http:`, `https:`) in browser opening logic (`openBrowser`).
+
 ## [1.0.0] - 2026-10-30
 
 ### Added

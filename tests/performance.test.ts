@@ -110,7 +110,7 @@ describe('Performance Benchmarks & Memory Efficiency', () => {
       const routingMs = performance.now() - startTime;
 
       expect(routingMs).toBeLessThan(35);
-      expect(output).toContain('1.0.0');
+      expect(output).toContain('1.1.0');
       writeSpy.mockRestore();
     });
   });

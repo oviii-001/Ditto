@@ -10,7 +10,7 @@ import { GradleDetector } from './android/gradle-detector.js';
 import { BuildRunner } from './android/build-runner.js';
 import { ApkParser } from './android/apk-parser.js';
 import { SkillInstaller } from './skill-installer.js';
-export const DITTO_VERSION = '1.0.0';
+export const DITTO_VERSION = '1.1.0';
 export async function runCli(argv = process.argv.slice(2)) {
     const args = argv.slice();
     const command = args[0] || 'help';
@@ -127,7 +127,7 @@ async function handleAuth(store, args = []) {
         const driveManager = new DriveManager(authClient);
         const canonicalFile = await driveManager.getOrCreateCanonicalFile(existingState?.drive?.fileId, existingState?.drive?.folderId);
         const newState = {
-            version: '1.0.0',
+            version: DITTO_VERSION,
             oauth: {
                 clientId,
                 clientSecret,

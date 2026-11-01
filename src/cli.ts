@@ -12,7 +12,7 @@ import { ApkParser } from './android/apk-parser.js';
 import { SkillInstaller } from './skill-installer.js';
 import { DeliveryResult, DittoState, FeedbackResult } from './types/index.js';
 
-export const DITTO_VERSION = '1.0.0';
+export const DITTO_VERSION = '1.1.0';
 
 export async function runCli(argv: string[] = process.argv.slice(2)): Promise<void> {
   const args = argv.slice();
@@ -160,7 +160,7 @@ async function handleAuth(store: StateStore, args: string[] = []): Promise<void>
     );
 
     const newState: DittoState = {
-      version: '1.0.0',
+      version: DITTO_VERSION,
       oauth: {
         clientId,
         clientSecret,
