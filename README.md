@@ -226,23 +226,23 @@ Running `ditto setup` registers two complementary, symbiotic skills into your An
 <table>
   <thead>
     <tr>
-      <th align="left" nowrap>Skill</th>
-      <th align="left" nowrap>Direction &amp; Purpose</th>
-      <th align="left" nowrap>When It Triggers</th>
+      <th align="left" width="160" nowrap>Skill</th>
+      <th align="left" width="220" nowrap>Direction &amp; Purpose</th>
+      <th align="left" width="240" nowrap>When It Triggers</th>
       <th align="left">What Ditto Does</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td nowrap><b><code>apk-delivery</code></b></td>
-      <td nowrap>📤 <b>Outbound</b> (Workstation → Phone)</td>
-      <td nowrap>Task completion or <code>/apk-delivery</code></td>
+      <td width="160" nowrap><b><code>apk‑delivery</code></b></td>
+      <td width="220" nowrap>📤 <b>Outbound</b> (Workstation → Phone)</td>
+      <td width="240" nowrap>Task completion or <code>/apk‑delivery</code></td>
       <td>Compiles debug APK with Gradle, overwrites canonical <code>Latest-debug.apk</code> on Drive, and posts your permanent test link in chat.</td>
     </tr>
     <tr>
-      <td nowrap><b><code>apk-feedback</code></b></td>
-      <td nowrap>📥 <b>Inbound</b> (Phone → Workstation)</td>
-      <td nowrap>Phone screenshots or <code>/apk-feedback</code></td>
+      <td width="160" nowrap><b><code>apk‑feedback</code></b></td>
+      <td width="220" nowrap>📥 <b>Inbound</b> (Phone → Workstation)</td>
+      <td width="240" nowrap>Phone screenshots or <code>/apk‑feedback</code></td>
       <td>Streams screenshots from Drive into <code>.ditto/screenshots/</code>, <b>hard-deletes remote files immediately (Inbox Zero)</b>, and inspects UI defects.</td>
     </tr>
   </tbody>
