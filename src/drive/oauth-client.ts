@@ -126,6 +126,15 @@ export class OAuthManager {
    */
   public static openBrowser(url: string): void {
     try {
+      // Security validation: Prevent command injection via newlines, control characters, or illegal protocols
+      if (/[\r\n\x00-\x1f]/.test(url)) {
+        return; // Reject illegal control characters safely
+      }
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return; // Reject non-web protocols (e.g. javascript:, file:) safely
+      }
+
       if (process.platform === 'win32') {
         const ps = spawn(
           'powershell.exe',

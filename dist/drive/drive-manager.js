@@ -393,12 +393,21 @@ export class DriveManager {
             const file = files[i];
             if (!file.id)
                 continue;
-            // Clean file naming
+            // Clean and sanitize file naming against path traversal
             const ext = path.extname(file.name || '') || (file.mimeType?.includes('jpeg') ? '.jpg' : '.png');
             const baseRaw = path.basename(file.name || `screenshot_${Date.now()}_${i + 1}`, ext);
-            const cleanBase = baseRaw.replace(/[^a-zA-Z0-9._-]/g, '_');
+            let cleanBase = baseRaw.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.{2,}/g, '_');
+            if (!cleanBase || cleanBase === '.' || cleanBase === '..') {
+                cleanBase = `screenshot_${Date.now()}_${i + 1}`;
+            }
             let targetFilename = `${cleanBase}${ext}`;
-            let targetPath = path.join(targetLocalDir, targetFilename);
+            let targetPath = path.resolve(targetLocalDir, targetFilename);
+            // Defense-in-depth: ensure targetPath cannot escape targetLocalDir
+            const resolvedTargetDir = path.resolve(targetLocalDir);
+            if (!targetPath.startsWith(resolvedTargetDir)) {
+                targetFilename = `screenshot_${Date.now()}_${i + 1}${ext}`;
+                targetPath = path.resolve(resolvedTargetDir, targetFilename);
+            }
             // Handle local collision
             let counter = 1;
             while (fs.existsSync(targetPath)) {
@@ -433,7 +442,7 @@ export class DriveManager {
             await this.drive.files.delete({ fileId: file.id });
             items.push({
                 id: file.id,
-                name: file.name || targetFilename,
+                name: targetFilename,
                 localPath: targetPath,
                 createdTime: file.createdTime || undefined,
                 sizeBytes: file.size ? Number(file.size) : undefined,
