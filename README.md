@@ -214,49 +214,60 @@ Your tokens are saved securely to `~/.ditto/state.json`. You never have to confi
 
 ---
 
-## 🤖 Using the `apk-delivery` Skill in Antigravity
+## 🤖 Using the Ditto Skills in Antigravity
 
 > [!IMPORTANT]
 > Ditto is designed exclusively for **Google Antigravity** (the conversational AI agent with remote control). It does **not** target Antigravity IDE or the `agy` CLI—those products do not have the remote control system that creates the delivery problem Ditto solves.
 
 ### How It Works
 
-After running `ditto setup`, the `apk-delivery` skill is registered in your Antigravity skills directory and becomes immediately available to the agent—no restart needed.
+After running `ditto setup`, two complementary skills are registered in your Antigravity skills directory and become immediately available to the agent—no restart needed:
+- **`apk-delivery`** *(Outbound)*: Compiles debug APKs and updates your permanent phone testing link.
+- **`apk-feedback`** *(Inbound)*: Drains mobile bug screenshots from Drive into your workspace (Inbox Zero) and guides UI fixes.
 
 ---
 
-### Invoking the Skill
+### Invoking the Skills
 
-You can trigger the `apk-delivery` skill in Antigravity in two ways:
+You can trigger both skills in Antigravity either via explicit slash commands or natural language:
 
-#### Option 1 — Slash Command (Explicit)
+#### 1. Outbound: `apk-delivery`
 
-Type the skill name directly in the Antigravity chat to immediately trigger a build and delivery:
+- **Slash Command:**
+  ```
+  /apk-delivery
+  ```
+- **Natural Language:**
+  ```
+  deliver the apk to my phone
+  ```
+  ```
+  build and send the apk to my drive
+  ```
+  ```
+  give me the apk download link
+  ```
+- **Automatic Execution:** The skill also activates **automatically** at the end of any Android coding task—no prompt needed.
 
-```
-/apk-delivery
-```
+#### 2. Inbound: `apk-feedback`
 
-Antigravity will compile the debug APK, upload it to your Google Drive, and reply with the download card in the same conversation.
-
-#### Option 2 — Natural Language (Automatic)
-
-Just describe what you want in plain English. Antigravity detects the intent and invokes the skill on your behalf:
-
-```
-deliver the apk to my phone
-```
-```
-build and send the apk to my drive
-```
-```
-ship the latest build so i can test it
-```
-```
-give me the apk download link
-```
-
-The skill also activates **automatically** at the end of any Android coding task—no prompt needed.
+- **Slash Command:**
+  ```
+  /apk-feedback
+  ```
+- **Natural Language:**
+  ```
+  check my screenshots
+  ```
+  ```
+  look at the UI bug I found on my phone
+  ```
+  ```
+  I uploaded 2 screenshots of the checkout screen, please fix the layout
+  ```
+  ```
+  pull screenshots from my drive
+  ```
 
 ---
 
