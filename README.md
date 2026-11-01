@@ -219,11 +219,17 @@ Your tokens are saved securely to `~/.ditto/state.json`. You never have to confi
 > [!IMPORTANT]
 > Ditto is designed exclusively for **Google Antigravity** (the conversational AI agent with remote control). It does **not** target Antigravity IDE or the `agy` CLI—those products do not have the remote control system that creates the delivery problem Ditto solves.
 
-### How It Works
+### How It Works: The Complete Two-Way Testing Loop
 
-After running `ditto setup`, two complementary skills are registered in your Antigravity skills directory and become immediately available to the agent—no restart needed:
-- **`apk-delivery`** *(Outbound)*: Compiles debug APKs and updates your permanent phone testing link.
-- **`apk-feedback`** *(Inbound)*: Drains mobile bug screenshots from Drive into your workspace (Inbox Zero) and guides UI fixes.
+Running `ditto setup` registers two complementary, symbiotic skills into your Antigravity environment to form a closed-loop mobile testing pipeline:
+
+| Skill | Direction & Purpose | When It Triggers | What Ditto Does |
+| :--- | :---: | :--- | :--- |
+| **`apk-delivery`** | 📤 **Outbound**<br/>*(Workstation $\to$ Phone)* | Task completion or<br/>`/apk-delivery` | Compiles debug APK with Gradle, overwrites canonical `Latest-debug.apk` on Drive, and posts your permanent test link in chat. |
+| **`apk-feedback`** | 📥 **Inbound**<br/>*(Phone $\to$ Workstation)* | Phone screenshots or<br/>`/apk-feedback` | Streams screenshots from Drive into `.ditto/screenshots/`, **hard-deletes remote files immediately (Inbox Zero)**, and inspects UI defects. |
+
+> [!TIP]
+> **The Autonomous Mobile Loop:** Build an APK $\to$ test on physical phone $\to$ share bug screenshot(s) to Drive $\to$ Antigravity diagnoses the defect, writes the fix, and automatically re-delivers the updated APK to the same permanent link.
 
 ---
 
