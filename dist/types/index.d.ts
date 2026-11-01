@@ -11,6 +11,7 @@ export interface OAuthTokens {
 export interface CanonicalDriveFile {
     fileId: string;
     folderId?: string;
+    buildsFolderId?: string;
     screenshotsFolderId?: string;
     fileName: string;
     webViewLink: string;
@@ -68,6 +69,7 @@ export interface DeliveryResult {
     drive?: {
         fileId: string;
         folderId?: string;
+        buildsFolderId?: string;
         webViewUrl: string;
         directDownloadUrl: string;
         overwritten: boolean;

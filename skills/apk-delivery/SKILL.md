@@ -10,7 +10,7 @@ Use this skill when you have completed an Android development task (feature impl
 ## Core Delivery Principle
 
 **One user, one permanent test link.**  
-Ditto overwrites a single canonical file (`Latest-debug.apk`) in the user's Google Drive across all projects. The Drive file ID and the download link never change.
+Ditto overwrites a single canonical file (`Latest-debug.apk`) inside the `Ditto/Builds/` folder in the user's Google Drive across all projects. The Drive file ID and the download link never change.
 
 ---
 

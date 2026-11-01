@@ -6,8 +6,10 @@ import {
   DriveManager,
   CANONICAL_APK_NAME,
   DITTO_FOLDER_NAME,
+  BUILDS_FOLDER_NAME,
   SCREENSHOTS_FOLDER_NAME,
   DITTO_APP_TAG,
+  DITTO_BUILDS_TAG,
   DITTO_SCREENSHOTS_TAG,
 } from '../src/drive/drive-manager.js';
 import { OAuth2Client } from 'google-auth-library';
@@ -81,8 +83,8 @@ describe('DriveManager', () => {
   });
 
   describe('getOrCreateCanonicalFile', () => {
-    it('reuses preferred fileId, migrates it into Ditto folder if not already inside', async () => {
-      // Mock folder get
+    it('reuses preferred fileId, migrates it into Ditto/Builds folder if not already inside', async () => {
+      // Mock parent folder get
       mockFilesGet
         .mockResolvedValueOnce({
           data: {
@@ -92,43 +94,16 @@ describe('DriveManager', () => {
             trashed: false,
           },
         })
-        // Mock file get (in root, not in folder-123)
+        // Mock Builds subfolder get
         .mockResolvedValueOnce({
           data: {
-            id: 'pref-123',
-            name: CANONICAL_APK_NAME,
-            trashed: false,
-            parents: ['root'],
-            webViewLink: 'https://drive.google.com/view/pref-123',
-            webContentLink: 'https://drive.google.com/download/pref-123',
-            createdTime: '2026-10-30T10:00:00Z',
-          },
-        });
-
-      mockFilesUpdate.mockResolvedValue({ data: { id: 'pref-123', parents: ['folder-123'] } });
-
-      const file = await driveManager.getOrCreateCanonicalFile('pref-123', 'folder-123');
-      expect(file.fileId).toBe('pref-123');
-      expect(file.folderId).toBe('folder-123');
-      // Should have migrated into folder
-      expect(mockFilesUpdate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          fileId: 'pref-123',
-          addParents: 'folder-123',
-        })
-      );
-    });
-
-    it('does not re-move file if it is already inside the Ditto folder', async () => {
-      mockFilesGet
-        .mockResolvedValueOnce({
-          data: {
-            id: 'folder-123',
-            name: DITTO_FOLDER_NAME,
+            id: 'builds-123',
+            name: BUILDS_FOLDER_NAME,
             mimeType: 'application/vnd.google-apps.folder',
             trashed: false,
           },
         })
+        // Mock file get (in folder-123, not in builds-123)
         .mockResolvedValueOnce({
           data: {
             id: 'pref-123',
@@ -141,18 +116,74 @@ describe('DriveManager', () => {
           },
         });
 
-      const file = await driveManager.getOrCreateCanonicalFile('pref-123', 'folder-123');
+      mockFilesUpdate.mockResolvedValue({ data: { id: 'pref-123', parents: ['builds-123'] } });
+
+      const file = await driveManager.getOrCreateCanonicalFile('pref-123', 'folder-123', 'builds-123');
       expect(file.fileId).toBe('pref-123');
       expect(file.folderId).toBe('folder-123');
-      expect(mockFilesUpdate).not.toHaveBeenCalled();
+      expect(file.buildsFolderId).toBe('builds-123');
+      // Should have migrated into Builds folder
+      expect(mockFilesUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fileId: 'pref-123',
+          addParents: 'builds-123',
+        })
+      );
     });
 
-    it('self-heals via appProperties search when preferred file returns 404', async () => {
-      // Mock folder
+    it('does not re-move file if it is already inside the Ditto/Builds folder', async () => {
       mockFilesGet
         .mockResolvedValueOnce({
           data: {
             id: 'folder-123',
+            name: DITTO_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            id: 'builds-123',
+            name: BUILDS_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            id: 'pref-123',
+            name: CANONICAL_APK_NAME,
+            trashed: false,
+            parents: ['builds-123'],
+            webViewLink: 'https://drive.google.com/view/pref-123',
+            webContentLink: 'https://drive.google.com/download/pref-123',
+            createdTime: '2026-10-30T10:00:00Z',
+          },
+        });
+
+      const file = await driveManager.getOrCreateCanonicalFile('pref-123', 'folder-123', 'builds-123');
+      expect(file.fileId).toBe('pref-123');
+      expect(file.folderId).toBe('folder-123');
+      expect(file.buildsFolderId).toBe('builds-123');
+      expect(mockFilesUpdate).not.toHaveBeenCalled();
+    });
+
+    it('self-heals via appProperties search when preferred file returns 404', async () => {
+      // Mock parent folder
+      mockFilesGet
+        .mockResolvedValueOnce({
+          data: {
+            id: 'folder-123',
+            name: DITTO_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+          },
+        })
+        // Mock Builds subfolder
+        .mockResolvedValueOnce({
+          data: {
+            id: 'builds-123',
+            name: BUILDS_FOLDER_NAME,
             mimeType: 'application/vnd.google-apps.folder',
             trashed: false,
           },
@@ -175,25 +206,37 @@ describe('DriveManager', () => {
           ],
         },
       });
+      mockFilesUpdate.mockResolvedValue({ data: { id: 'discovered-456', parents: ['builds-123'] } });
       mockPermissionsCreate.mockResolvedValue({});
 
-      const file = await driveManager.getOrCreateCanonicalFile('broken-file-id', 'folder-123');
+      const file = await driveManager.getOrCreateCanonicalFile('broken-file-id', 'folder-123', 'builds-123');
       expect(file.fileId).toBe('discovered-456');
       expect(file.folderId).toBe('folder-123');
+      expect(file.buildsFolderId).toBe('builds-123');
       expect(mockPermissionsCreate).toHaveBeenCalledWith(
         expect.objectContaining({ fileId: 'discovered-456' })
       );
     });
 
-    it('creates canonical file inside the Ditto folder with public reader permission when non-existent', async () => {
-      // Folder lookup
-      mockFilesGet.mockResolvedValueOnce({
-        data: {
-          id: 'folder-123',
-          mimeType: 'application/vnd.google-apps.folder',
-          trashed: false,
-        },
-      });
+    it('creates canonical file inside the Ditto/Builds folder with public reader permission when non-existent', async () => {
+      // Folder lookups
+      mockFilesGet
+        .mockResolvedValueOnce({
+          data: {
+            id: 'folder-123',
+            name: DITTO_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            id: 'builds-123',
+            name: BUILDS_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+          },
+        });
 
       mockFilesList.mockResolvedValue({ data: { files: [] } });
       mockFilesCreate.mockResolvedValue({
@@ -207,14 +250,15 @@ describe('DriveManager', () => {
       });
       mockPermissionsCreate.mockResolvedValue({});
 
-      const file = await driveManager.getOrCreateCanonicalFile(undefined, 'folder-123');
+      const file = await driveManager.getOrCreateCanonicalFile(undefined, 'folder-123', 'builds-123');
       expect(file.fileId).toBe('new-canonical-789');
       expect(file.folderId).toBe('folder-123');
+      expect(file.buildsFolderId).toBe('builds-123');
       expect(mockFilesCreate).toHaveBeenCalledWith(
         expect.objectContaining({
           requestBody: expect.objectContaining({
             name: CANONICAL_APK_NAME,
-            parents: ['folder-123'],
+            parents: ['builds-123'],
             appProperties: { app: DITTO_APP_TAG, role: 'canonical-apk' },
           }),
         })
@@ -223,6 +267,48 @@ describe('DriveManager', () => {
         expect.objectContaining({
           fileId: 'new-canonical-789',
           requestBody: { role: 'reader', type: 'anyone' },
+        })
+      );
+    });
+  });
+
+  describe('getOrCreateBuildsFolder', () => {
+    it('reuses preferred folderId when it exists and is a folder', async () => {
+      mockFilesGet.mockResolvedValueOnce({
+        data: {
+          id: 'builds-pref-1',
+          name: BUILDS_FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+          trashed: false,
+        },
+      });
+
+      const folderId = await driveManager.getOrCreateBuildsFolder('builds-pref-1', 'ditto-folder-1');
+      expect(folderId).toBe('builds-pref-1');
+    });
+
+    it('creates fresh Builds subfolder inside Ditto folder when none exists', async () => {
+      mockFilesGet.mockResolvedValueOnce({
+        data: {
+          id: 'ditto-folder-1',
+          name: DITTO_FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+          trashed: false,
+        },
+      });
+      mockFilesList.mockResolvedValue({ data: { files: [] } });
+      mockFilesCreate.mockResolvedValue({ data: { id: 'new-builds-folder-888' } });
+
+      const folderId = await driveManager.getOrCreateBuildsFolder(undefined, 'ditto-folder-1');
+      expect(folderId).toBe('new-builds-folder-888');
+      expect(mockFilesCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestBody: expect.objectContaining({
+            name: BUILDS_FOLDER_NAME,
+            mimeType: 'application/vnd.google-apps.folder',
+            parents: ['ditto-folder-1'],
+            appProperties: { app: DITTO_APP_TAG, role: DITTO_BUILDS_TAG },
+          }),
         })
       );
     });
@@ -264,25 +350,14 @@ describe('DriveManager', () => {
 
   describe('getOrCreateScreenshotsFolder', () => {
     it('reuses preferred folderId when it exists and is a folder', async () => {
-      // Mock parent folder get
-      mockFilesGet
-        .mockResolvedValueOnce({
-          data: {
-            id: 'ditto-folder-1',
-            name: DITTO_FOLDER_NAME,
-            mimeType: 'application/vnd.google-apps.folder',
-            trashed: false,
-          },
-        })
-        // Mock screenshots folder get
-        .mockResolvedValueOnce({
-          data: {
-            id: 'ss-pref-1',
-            name: SCREENSHOTS_FOLDER_NAME,
-            mimeType: 'application/vnd.google-apps.folder',
-            trashed: false,
-          },
-        });
+      mockFilesGet.mockResolvedValueOnce({
+        data: {
+          id: 'ss-pref-1',
+          name: SCREENSHOTS_FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+          trashed: false,
+        },
+      });
 
       const folderId = await driveManager.getOrCreateScreenshotsFolder('ss-pref-1', 'ditto-folder-1');
       expect(folderId).toBe('ss-pref-1');

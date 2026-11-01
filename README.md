@@ -42,7 +42,7 @@ You tap the link, download the APK, install it, and test. No switching apps, no 
 
 ### Key Principles
 
-1. **One Permanent Test Link:** Ditto creates and updates a single canonical file inside a dedicated `Ditto/` folder in your Google Drive (`Ditto/Latest-debug.apk`). The Google Drive `fileId` and public download URL remain identical forever.
+1. **One Permanent Test Link:** Ditto creates and updates a single canonical file inside a dedicated `Builds/` subfolder in your Google Drive (`Ditto/Builds/Latest-debug.apk`). The Google Drive `fileId` and public download URL remain identical forever.
 2. **Cross-Project In-Place Overwrites:** Working on *Project Alpha* in the morning and *Project Beta* in the afternoon? Ditto updates the same canonical file using Google Drive's `files.update` API without generating duplicate files.
 3. **Self-Healing Recovery:** If your local machine configuration is ever deleted, Ditto uses custom Google Drive `appProperties` to locate your existing canonical file rather than creating an orphan duplicate.
 4. **Agent-Centric Stream Separation:** When run with `--json`, `stdout` outputs strictly machine-readable JSON for Antigravity, while progress and Gradle logs stream to `stderr`.
@@ -73,7 +73,7 @@ flowchart TD
 
     subgraph GoogleDrive["Google Drive Cloud"]
         DriveFolder["Dedicated Folder: Ditto/"]
-        DriveFile["Canonical Test File: Ditto/Latest-debug.apk\nFixed File ID: 1a2b3c4d5e..."]
+        DriveFile["Canonical Test File: Ditto/Builds/Latest-debug.apk\nFixed File ID: 1a2b3c4d5e..."]
         DriveFolder --- DriveFile
         CLI -->|Resumable files.update| DriveFile
         Perm["Permission: Anyone with link (Reader)"] --- DriveFile
@@ -133,7 +133,7 @@ ditto setup
 When you run `ditto setup`, it:
 1. **Auto-installs the Antigravity Skill:** Detects your local Antigravity installation (`~/.gemini/config/skills/apk-delivery/` or `%USERPROFILE%\.gemini\...`) and copies the agent skill so your AI pair programmer knows how to deliver APKs right away.
 2. **Connects Google Drive:** Guides you through signing in with your Google account via browser and configures least-privilege `drive.file` access.
-3. **Creates the Dedicated Drive Folder & File:** Sets up a dedicated `Ditto/` folder and your permanent `Ditto/Latest-debug.apk` file on Drive with public reader access ready for automated delivery.
+3. **Creates the Dedicated Drive Folder & File:** Sets up a dedicated `Ditto/` folder and your permanent `Ditto/Builds/Latest-debug.apk` file on Drive with public reader access ready for automated delivery.
 
 ---
 
@@ -237,7 +237,7 @@ Running `ditto setup` registers two complementary, symbiotic skills into your An
       <td width="160" nowrap><b><code>/apk‑delivery</code></b></td>
       <td width="220" nowrap>📤 <b>Outbound</b> (Workstation → Phone)</td>
       <td width="240" nowrap>Task completion or <code>/apk‑delivery</code></td>
-      <td>Compiles debug APK with Gradle, overwrites canonical <code>Latest-debug.apk</code> on Drive, and posts your permanent test link in chat.</td>
+      <td>Compiles debug APK with Gradle, overwrites canonical <code>Latest-debug.apk</code> in <code>Ditto/Builds/</code>, and posts your permanent test link in chat.</td>
     </tr>
     <tr>
       <td width="160" nowrap><b><code>/apk‑feedback</code></b></td>

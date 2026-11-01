@@ -3,8 +3,10 @@ import { OAuth2Client } from 'google-auth-library';
 import { CanonicalDriveFile, ScreenshotItem } from '../types/index.js';
 export declare const CANONICAL_APK_NAME = "Latest-debug.apk";
 export declare const DITTO_FOLDER_NAME = "Ditto";
+export declare const BUILDS_FOLDER_NAME = "Builds";
 export declare const SCREENSHOTS_FOLDER_NAME = "Screenshots";
 export declare const DITTO_APP_TAG = "ditto";
+export declare const DITTO_BUILDS_TAG = "builds-folder";
 export declare const DITTO_SCREENSHOTS_TAG = "screenshots-inbox";
 export declare class DriveManager {
     private drive;
@@ -15,6 +17,10 @@ export declare class DriveManager {
      */
     getOrCreateDittoFolder(preferredFolderId?: string): Promise<string>;
     /**
+     * Resolves or creates the dedicated 'Ditto/Builds' folder on Google Drive.
+     */
+    getOrCreateBuildsFolder(preferredFolderId?: string, preferredParentDittoFolderId?: string): Promise<string>;
+    /**
      * Resolves or creates the dedicated 'Ditto/Screenshots' folder on Google Drive.
      */
     getOrCreateScreenshotsFolder(preferredFolderId?: string, preferredParentDittoFolderId?: string): Promise<string>;
@@ -24,12 +30,12 @@ export declare class DriveManager {
     moveFileToFolder(fileId: string, targetFolderId: string, currentParents?: string[] | null): Promise<void>;
     /**
      * Resolves the single canonical Drive file:
-     * 1. Resolves/creates the dedicated 'Ditto' folder.
-     * 2. Checks existing fileId from local state and migrates into folder if needed.
-     * 3. If missing/invalid, recovers via Drive appProperties search and migrates into folder.
-     * 4. If still not found, creates the canonical file inside the 'Ditto' folder with public reader permission.
+     * 1. Resolves/creates the dedicated 'Ditto' parent folder and 'Ditto/Builds' subfolder.
+     * 2. Checks existing fileId from local state and migrates into 'Builds' folder if needed.
+     * 3. If missing/invalid, recovers via Drive appProperties search and migrates into 'Builds' folder.
+     * 4. If still not found, creates the canonical file inside the 'Ditto/Builds' folder with public reader permission.
      */
-    getOrCreateCanonicalFile(preferredFileId?: string, preferredFolderId?: string): Promise<CanonicalDriveFile>;
+    getOrCreateCanonicalFile(preferredFileId?: string, preferredFolderId?: string, preferredBuildsFolderId?: string): Promise<CanonicalDriveFile>;
     /**
      * Overwrite existing Google Drive APK file in place.
      */

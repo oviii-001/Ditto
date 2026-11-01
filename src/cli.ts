@@ -273,7 +273,8 @@ async function handleDeliver(store: StateStore, args: string[]): Promise<void> {
       const driveManager = new DriveManager(authClient);
       const canonicalFile = await driveManager.getOrCreateCanonicalFile(
         state.drive?.fileId,
-        state.drive?.folderId
+        state.drive?.folderId,
+        state.drive?.buildsFolderId
       );
 
       // 5. Overwrite file in place
@@ -327,6 +328,7 @@ async function handleDeliver(store: StateStore, args: string[]): Promise<void> {
         drive: {
           fileId: canonicalFile.fileId,
           folderId: canonicalFile.folderId,
+          buildsFolderId: canonicalFile.buildsFolderId,
           webViewUrl: uploadRes.webViewLink,
           directDownloadUrl: uploadRes.webContentLink,
           overwritten: true,
@@ -539,7 +541,13 @@ async function handleStatus(store: StateStore, args: string[]): Promise<void> {
   if (state.drive) {
     console.log('\n--- Canonical Drive File ---');
     if (state.drive.folderId) {
-      console.log(`Folder:            Ditto/ (${state.drive.folderId})`);
+      console.log(`Dedicated Folder:  Ditto/ (${state.drive.folderId})`);
+    }
+    if (state.drive.buildsFolderId) {
+      console.log(`Builds Subfolder:  Ditto/Builds/ (${state.drive.buildsFolderId})`);
+    }
+    if (state.drive.screenshotsFolderId) {
+      console.log(`Screenshots Inbox: Ditto/Screenshots/ (${state.drive.screenshotsFolderId})`);
     }
     console.log(`File Name:         ${state.drive.fileName}`);
     console.log(`File ID:           ${state.drive.fileId}`);
