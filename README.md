@@ -223,10 +223,10 @@ Your tokens are saved securely to `~/.ditto/state.json`. You never have to confi
 
 Running `ditto setup` registers two complementary, symbiotic skills into your Antigravity environment to form a closed-loop mobile testing pipeline:
 
-| Skill | Flow | Trigger | Action |
+| Skill | Direction & Purpose | When It Triggers | What Ditto Does |
 | :--- | :---: | :--- | :--- |
-| **`apk-delivery`** | 📤 *Outbound* | <small>Task done, `/apk-delivery`</small> | <small>Compiles APK & updates permanent Drive link</small> |
-| **`apk-feedback`** | 📥 *Inbound* | <small>Screenshots, `/apk-feedback`</small> | <small>Pulls locally & purges Drive inbox (Inbox Zero)</small> |
+| **`apk-delivery`** | <small>📤 **Outbound** (Workstation $\to$ Phone)</small> | <small>Task completion or `/apk-delivery`</small> | <small>Compiles debug APK with Gradle, overwrites canonical `Latest-debug.apk` on Drive, and posts your permanent test link in chat.</small> |
+| **`apk-feedback`** | <small>📥 **Inbound** (Phone $\to$ Workstation)</small> | <small>Phone screenshots or `/apk-feedback`</small> | <small>Streams screenshots from Drive into `.ditto/screenshots/`, **hard-deletes remote files immediately (Inbox Zero)**, and inspects UI defects.</small> |
 
 > [!TIP]
 > **The Autonomous Mobile Loop:** Build an APK $\to$ test on physical phone $\to$ share bug screenshot(s) to Drive $\to$ Antigravity diagnoses the defect, writes the fix, and automatically re-delivers the updated APK to the same permanent link.
