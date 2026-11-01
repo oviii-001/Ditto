@@ -234,13 +234,13 @@ Running `ditto setup` registers two complementary, symbiotic skills into your An
   </thead>
   <tbody>
     <tr>
-      <td width="160" nowrap><b><code>apk‑delivery</code></b></td>
+      <td width="160" nowrap><b><code>/apk‑delivery</code></b></td>
       <td width="220" nowrap>📤 <b>Outbound</b> (Workstation → Phone)</td>
       <td width="240" nowrap>Task completion or <code>/apk‑delivery</code></td>
       <td>Compiles debug APK with Gradle, overwrites canonical <code>Latest-debug.apk</code> on Drive, and posts your permanent test link in chat.</td>
     </tr>
     <tr>
-      <td width="160" nowrap><b><code>apk‑feedback</code></b></td>
+      <td width="160" nowrap><b><code>/apk‑feedback</code></b></td>
       <td width="220" nowrap>📥 <b>Inbound</b> (Phone → Workstation)</td>
       <td width="240" nowrap>Phone screenshots or <code>/apk‑feedback</code></td>
       <td>Streams screenshots from Drive into <code>.ditto/screenshots/</code>, <b>hard-deletes remote files immediately (Inbox Zero)</b>, and inspects UI defects.</td>
