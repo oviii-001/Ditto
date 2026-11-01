@@ -223,10 +223,30 @@ Your tokens are saved securely to `~/.ditto/state.json`. You never have to confi
 
 Running `ditto setup` registers two complementary, symbiotic skills into your Antigravity environment to form a closed-loop mobile testing pipeline:
 
-| <nobr>Skill</nobr> | <nobr>Direction & Purpose</nobr> | <nobr>When It Triggers</nobr> | What Ditto Does |
-| :--- | :--- | :--- | :--- |
-| <nobr><b>`apk&#8209;delivery`</b></nobr> | <nobr><small>📤 <b>Outbound</b> (Workstation &rarr; Phone)</small></nobr> | <nobr><small>Task completion or `/apk-delivery`</small></nobr> | <small>Compiles debug APK with Gradle, overwrites canonical `Latest-debug.apk` on Drive, and posts your permanent test link in chat.</small> |
-| <nobr><b>`apk&#8209;feedback`</b></nobr> | <nobr><small>📥 <b>Inbound</b> (Phone &rarr; Workstation)</small></nobr> | <nobr><small>Phone screenshots or `/apk-feedback`</small></nobr> | <small>Streams screenshots from Drive into `.ditto/screenshots/`, **hard-deletes remote files immediately (Inbox Zero)**, and inspects UI defects.</small> |
+<table>
+  <thead>
+    <tr>
+      <th align="left" nowrap>Skill</th>
+      <th align="left" nowrap>Direction &amp; Purpose</th>
+      <th align="left" nowrap>When It Triggers</th>
+      <th align="left">What Ditto Does</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td nowrap><b><code>apk-delivery</code></b></td>
+      <td nowrap>📤 <b>Outbound</b> (Workstation → Phone)</td>
+      <td nowrap>Task completion or <code>/apk-delivery</code></td>
+      <td>Compiles debug APK with Gradle, overwrites canonical <code>Latest-debug.apk</code> on Drive, and posts your permanent test link in chat.</td>
+    </tr>
+    <tr>
+      <td nowrap><b><code>apk-feedback</code></b></td>
+      <td nowrap>📥 <b>Inbound</b> (Phone → Workstation)</td>
+      <td nowrap>Phone screenshots or <code>/apk-feedback</code></td>
+      <td>Streams screenshots from Drive into <code>.ditto/screenshots/</code>, <b>hard-deletes remote files immediately (Inbox Zero)</b>, and inspects UI defects.</td>
+    </tr>
+  </tbody>
+</table>
 
 > [!TIP]
 > **The Autonomous Mobile Loop:** Build an APK $\to$ test on physical phone $\to$ share bug screenshot(s) to Drive $\to$ Antigravity diagnoses the defect, writes the fix, and automatically re-delivers the updated APK to the same permanent link.
