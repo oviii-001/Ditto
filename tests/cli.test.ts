@@ -261,4 +261,51 @@ describe('CLI Integration & Schema Verification', () => {
       expect(purgeSpy).toHaveBeenCalledWith('ss-folder-456');
     });
   });
+
+  it('prints help message with all available commands and options', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await runCli(['help']);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Android Debug APK Delivery Automation'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('deliver'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('feedback'));
+    consoleSpy.mockRestore();
+  });
+
+  it('runs doctor diagnostics and reports environment health', async () => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(StateStore.prototype, 'loadState').mockReturnValue({
+      version: '1.0.0',
+      oauth: { clientId: 'client-1234567890', clientSecret: 'secret', tokens: { access_token: 'tok' } },
+      drive: {
+        fileId: 'fid-123',
+        fileName: 'Latest-debug.apk',
+        webViewLink: 'link',
+        webContentLink: 'link',
+        createdAt: 'time',
+      },
+    });
+
+    await runCli(['doctor']);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Ditto Environment Doctor'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Node.js Version'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Google Drive Auth'));
+    consoleSpy.mockRestore();
+  });
+
+  it('exits with code 1 for unknown commands', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(runCli(['unrecognized-cmd'])).rejects.toThrow(/process.exit/);
+    errorSpy.mockRestore();
+  });
+
+  it('exports all core classes and functions from library root index', async () => {
+    const index = await import('../src/index.js');
+    expect(index.StateStore).toBeDefined();
+    expect(index.GradleDetector).toBeDefined();
+    expect(index.BuildRunner).toBeDefined();
+    expect(index.ApkParser).toBeDefined();
+    expect(index.OAuthManager).toBeDefined();
+    expect(index.DriveManager).toBeDefined();
+    expect(index.runCli).toBeDefined();
+  });
 });
