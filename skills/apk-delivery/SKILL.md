@@ -1,11 +1,13 @@
 ---
 name: apk-delivery
-description: Automatically builds Android debug APK and delivers it to the user's permanent Google Drive test link after completing Android tasks.
+description: Delivers Android debug APK to Google Drive for phone testing. Trigger ONLY when the user explicitly invokes /apk-delivery or explicitly requests delivery to their phone/Drive (e.g., "deliver apk", "send build to phone", "upload apk to drive"). NEVER trigger automatically for general Android tasks.
 ---
 
 # Android APK Delivery for Antigravity
 
-Use this skill when you have completed an Android development task (feature implementation, bug fix, UI modification, or refactoring) and the application is ready for the user to download, install, and test on their Android device.
+Use this skill ONLY when the user explicitly invokes the `/apk-delivery` slash command or explicitly requests delivering/sending the Android build to their phone (e.g., *"deliver apk"*, *"upload apk to drive"*, *"send build to my phone"*).
+
+Do NOT automatically trigger this skill after general Android coding tasks, bug fixes, or unit tests unless the user has explicitly requested delivery.
 
 ## Core Delivery Principle
 

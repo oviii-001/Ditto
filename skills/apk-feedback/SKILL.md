@@ -1,11 +1,13 @@
 ---
 name: apk-feedback
-description: Pulls mobile testing screenshots and visual feedback uploaded by the user from their phone to Google Drive, inspects UI bugs locally, and guides code fixes.
+description: Pulls mobile testing screenshots and visual feedback from Google Drive into the local workspace and inspects UI defects. Trigger ONLY when the user explicitly invokes /apk-feedback or explicitly asks to check/pull feedback screenshots (e.g., "pull screenshots", "check my feedback", "inspect phone screenshots"). NEVER trigger automatically.
 ---
 
 # Android APK Visual Feedback for Antigravity
 
-Use this skill whenever the user has tested an Android debug build on their physical device and uploaded screenshots or visual bug reports to Google Drive (especially when using Antigravity remote control where direct image uploads into the chat are unavailable).
+Use this skill ONLY when the user explicitly invokes the `/apk-feedback` slash command or explicitly requests pulling/inspecting mobile screenshots from Google Drive (e.g., *"pull screenshots"*, *"check my screenshots"*, *"review phone feedback"*).
+
+Do NOT trigger this skill automatically unless the user explicitly asks you to inspect or pull feedback screenshots from Drive.
 
 ## The Inbound Feedback Principle
 
