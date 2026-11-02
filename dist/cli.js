@@ -11,7 +11,7 @@ import { BuildRunner } from './android/build-runner.js';
 import { ApkParser } from './android/apk-parser.js';
 import { SkillInstaller } from './skill-installer.js';
 import { Updater } from './updater.js';
-export const DITTO_VERSION = '1.1.0';
+export const DITTO_VERSION = '1.1.1';
 export async function runCli(argv = process.argv.slice(2)) {
     const args = argv.slice();
     const command = args[0] || 'help';

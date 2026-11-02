@@ -168,15 +168,15 @@ describe('CLI Integration & Schema Verification', () => {
 
   it('prints version when --version or -v is passed', async () => {
     await runCli(['--version']);
-    expect(stdoutOutput).toContain('1.1.0');
+    expect(stdoutOutput).toContain('1.1.1');
 
     stdoutOutput = '';
     await runCli(['-v']);
-    expect(stdoutOutput).toContain('1.1.0');
+    expect(stdoutOutput).toContain('1.1.1');
 
     stdoutOutput = '';
     await runCli(['version']);
-    expect(stdoutOutput).toContain('1.1.0');
+    expect(stdoutOutput).toContain('1.1.1');
   });
 
   describe('feedback command', () => {

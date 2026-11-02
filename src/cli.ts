@@ -13,7 +13,7 @@ import { SkillInstaller } from './skill-installer.js';
 import { Updater } from './updater.js';
 import { DeliveryResult, DittoState, FeedbackResult } from './types/index.js';
 
-export const DITTO_VERSION = '1.1.0';
+export const DITTO_VERSION = '1.1.1';
 
 export async function runCli(argv: string[] = process.argv.slice(2)): Promise<void> {
   const args = argv.slice();
