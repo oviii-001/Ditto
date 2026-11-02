@@ -1,6 +1,7 @@
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { OAuth2Client } from 'google-auth-library';
+export const DRIVE_FULL_SCOPE = 'https://www.googleapis.com/auth/drive';
 export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 // Default OAuth credentials (can be pre-configured for open source releases, or overridden via env vars)
 export const DEFAULT_OAUTH_CLIENT_ID = process.env.DITTO_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '';
@@ -72,7 +73,7 @@ export class OAuthManager {
                 const authUrl = oauth2Client.generateAuthUrl({
                     access_type: 'offline',
                     prompt: 'consent',
-                    scope: [DRIVE_FILE_SCOPE],
+                    scope: [DRIVE_FULL_SCOPE],
                 });
                 console.log('\n🔗 If your browser does not open automatically, visit this URL:');
                 console.log(`${authUrl}\n`);

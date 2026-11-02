@@ -90,5 +90,6 @@ export interface FeedbackResult {
     remotePurged: number;
     screenshots: ScreenshotItem[];
     destinationDir?: string;
+    scopeWarning?: string;
     error?: string;
 }

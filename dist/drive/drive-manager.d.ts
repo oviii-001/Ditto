@@ -55,6 +55,7 @@ export declare class DriveManager {
     pullScreenshots(targetLocalDir: string, options?: {
         limit?: number;
         folderId?: string;
+        parentFolderId?: string;
     }): Promise<ScreenshotItem[]>;
     /**
      * Purges all files in the screenshots folder (e.g., during pre-build sweep).

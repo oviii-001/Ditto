@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-11-02
+
+### Fixed
+- **Mobile Screenshot Discovery via `drive` Scope**: Updated Google OAuth scope to `https://www.googleapis.com/auth/drive`. Under Google Drive's permission model, `drive.file` scope only sees files created by the application itself and hides files uploaded independently by the user via the Google Drive mobile app.
+- **Proactive Scope Warning**: Added detection in `ditto feedback` to alert users and agents if their existing token is restricted to `drive.file` and guides them to run `ditto auth`.
+- **Parent Folder Screenshot Fallback**: Added automated fallback in `pullScreenshots` to retrieve screenshots saved directly into the parent `Ditto/` folder if `Ditto/Screenshots/` is empty.
+
 ## [1.1.1] - 2026-11-02
 
 ### Fixed

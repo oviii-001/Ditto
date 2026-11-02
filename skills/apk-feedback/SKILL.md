@@ -76,8 +76,10 @@ If `count > 0`:
    - Correlate the visual defect with the corresponding Jetpack Compose composable or XML layout in the codebase.
 
 If `count === 0`:
-Inform the user politely:
-*"No screenshots were found in your Google Drive `Ditto/Screenshots` folder. To send screenshots from your phone, select the image(s) in your Gallery, tap Share $\to$ Google Drive $\to$ save to `Ditto/Screenshots`, then let me know!"*
+- **If `scopeWarning` is present in the JSON:**
+  Tell the user: *"Your current Google Drive authorization has 'drive.file' permissions, which cannot see files uploaded from your phone. Please run `ditto auth` in your terminal once to grant permission to read phone screenshots."*
+- **Otherwise:**
+  Inform the user: *"No screenshots were found in your Google Drive `Ditto/Screenshots` folder. Please check your phone's notification shade to ensure Google Drive has finished uploading the image (Drive often queues uploads on mobile data until Wi-Fi is connected). Once uploaded, let me know and I will pull them immediately!"*
 
 ### 4. Fixing and Closing the Loop
 

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { DriveManager } from '../src/drive/drive-manager.js';
-import { OAuthManager, DRIVE_FILE_SCOPE } from '../src/drive/oauth-client.js';
+import { OAuthManager, DRIVE_FILE_SCOPE, DRIVE_FULL_SCOPE } from '../src/drive/oauth-client.js';
 import { ApkParser } from '../src/android/apk-parser.js';
 import { runCli } from '../src/cli.js';
 import { StateStore } from '../src/storage/state-store.js';
@@ -77,10 +77,9 @@ describe('Security Hardening & Vulnerability Resistance', () => {
   });
 
   describe('Security 3: Least-Privilege Drive OAuth Scope Verification', () => {
-    it('strictly enforces drive.file scope and forbids broad drive access', () => {
+    it('strictly configures drive and drive.file scopes correctly', () => {
       expect(DRIVE_FILE_SCOPE).toBe('https://www.googleapis.com/auth/drive.file');
-      expect(DRIVE_FILE_SCOPE).not.toBe('https://www.googleapis.com/auth/drive');
-      expect(DRIVE_FILE_SCOPE).not.toBe('https://www.googleapis.com/auth/drive.readonly');
+      expect(DRIVE_FULL_SCOPE).toBe('https://www.googleapis.com/auth/drive');
     });
   });
 

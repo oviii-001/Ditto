@@ -1,5 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import { OAuthTokens } from '../types/index.js';
+export declare const DRIVE_FULL_SCOPE = "https://www.googleapis.com/auth/drive";
 export declare const DRIVE_FILE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 export declare const DEFAULT_OAUTH_CLIENT_ID: string;
 export declare const DEFAULT_OAUTH_CLIENT_SECRET: string;

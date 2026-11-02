@@ -13,7 +13,7 @@ import { SkillInstaller } from './skill-installer.js';
 import { Updater } from './updater.js';
 import { DeliveryResult, DittoState, FeedbackResult } from './types/index.js';
 
-export const DITTO_VERSION = '1.1.1';
+export const DITTO_VERSION = '1.1.2';
 
 export async function runCli(argv: string[] = process.argv.slice(2)): Promise<void> {
   const args = argv.slice();
@@ -473,7 +473,18 @@ async function handleFeedback(store: StateStore, args: string[]): Promise<void> 
     const items = await driveManager.pullScreenshots(localDir, {
       limit: limit && !isNaN(limit) ? limit : undefined,
       folderId: screenshotsFolderId,
+      parentFolderId: state.drive?.folderId,
     });
+
+    const grantedScope = state.oauth.tokens?.scope || '';
+    const hasFullDriveAccess = grantedScope.split(' ').some((s) => s === 'https://www.googleapis.com/auth/drive');
+
+    let scopeWarning: string | undefined;
+    if (items.length === 0 && !hasFullDriveAccess) {
+      scopeWarning =
+        "Your Google Drive authorization currently has 'drive.file' scope. In Google Drive, files uploaded from mobile devices require 'drive' scope to be visible. Run 'ditto auth' to grant access.";
+      logInfo(`⚠️  Notice: ${scopeWarning}`);
+    }
 
     if (items.length > 0) {
       logInfo(`✓ Retrieved and downloaded ${items.length} screenshot(s) to: ${localDir}`);
@@ -488,6 +499,7 @@ async function handleFeedback(store: StateStore, args: string[]): Promise<void> 
       remotePurged: items.length,
       screenshots: items,
       destinationDir: localDir,
+      scopeWarning,
     };
 
     if (isJson) {
@@ -498,6 +510,9 @@ async function handleFeedback(store: StateStore, args: string[]): Promise<void> 
       console.log('=========================================');
       if (items.length === 0) {
         console.log('No screenshots found in Google Drive (Ditto/Screenshots/).');
+        if (scopeWarning) {
+          console.log(`\n⚠️  ${scopeWarning}\n`);
+        }
         console.log('To provide feedback from your mobile device:');
         console.log('1. Take screenshot(s) on your phone');
         console.log('2. Share -> Google Drive -> Save to "Ditto/Screenshots"');

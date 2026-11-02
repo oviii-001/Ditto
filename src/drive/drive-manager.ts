@@ -448,19 +448,37 @@ export class DriveManager {
    */
   public async pullScreenshots(
     targetLocalDir: string,
-    options?: { limit?: number; folderId?: string }
+    options?: { limit?: number; folderId?: string; parentFolderId?: string }
   ): Promise<ScreenshotItem[]> {
     const folderId = options?.folderId || (await this.getOrCreateScreenshotsFolder());
     fs.mkdirSync(targetLocalDir, { recursive: true });
 
-    const listRes = await this.drive.files.list({
+    let listRes = await this.drive.files.list({
       q: `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`,
       fields: 'files(id, name, mimeType, size, createdTime)',
       orderBy: 'createdTime asc',
       pageSize: options?.limit && options.limit > 0 ? options.limit : 100,
     });
 
-    const files = listRes.data.files || [];
+    let files = listRes.data.files || [];
+
+    // Fallback: If no files were found in Ditto/Screenshots/, check if the user accidentally
+    // saved screenshots directly to the parent Ditto/ folder instead of Screenshots/
+    if (files.length === 0 && options?.parentFolderId) {
+      try {
+        const parentRes = await this.drive.files.list({
+          q: `'${options.parentFolderId}' in parents and mimeType contains 'image/' and trashed = false`,
+          fields: 'files(id, name, mimeType, size, createdTime)',
+          orderBy: 'createdTime asc',
+          pageSize: options?.limit && options.limit > 0 ? options.limit : 100,
+        });
+        if (parentRes.data.files && parentRes.data.files.length > 0) {
+          files = parentRes.data.files;
+        }
+      } catch {
+        // Ignore fallback query error
+      }
+    }
     const items: ScreenshotItem[] = [];
 
     for (let i = 0; i < files.length; i++) {

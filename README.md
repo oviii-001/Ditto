@@ -5,7 +5,7 @@
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
     <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node.js Version" /></a>
     <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
-    <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/release-v1.1.1-blue.svg" alt="Release" /></a>
+    <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/release-v1.1.2-blue.svg" alt="Release" /></a>
   </p>
   <p>
     <strong>Automated APK delivery & visual feedback skills for <a href="https://antigravity.google.com">Google Antigravity</a>.</strong><br />
@@ -183,7 +183,7 @@ Ditto connects to your Google Drive using Google's standard OAuth 2.0 Desktop Ap
    - **Developer contact information:** Enter your email address.
    - Click **Save and Continue**.
 4. **Scopes:** Click **Add or Remove Scopes**, find and select:
-   - `https://www.googleapis.com/auth/drive.file` *(View and manage Google Drive files that you have opened or created with this app)*.
+   - `https://www.googleapis.com/auth/drive` *(Allows Ditto to deliver APKs and read/purge bug screenshots uploaded from your phone)*.
    - Click **Update** and then **Save and Continue**.
 5. **Test users:** Under "Test users", click **Add Users** and enter your personal Google email address (the one you will sign in with).
 6. Click **Save and Continue**.
