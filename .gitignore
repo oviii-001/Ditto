@@ -4,3 +4,18 @@ node_modules/
 Thumbs.db
 .ditto/
 coverage/
+
+# Planning, specs, and agent tasks
+tasks/
+docs/
+.planning/
+scratch/
+*.tmp
+*.tmp.*
+
+# IDEs & editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
