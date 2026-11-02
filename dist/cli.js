@@ -300,7 +300,8 @@ async function handleDeliver(store, args) {
                 console.log(`APK Size:       ${meta.sizeMb} MB`);
                 console.log(`SHA-256:        ${meta.sha256.substring(0, 16)}...`);
                 console.log('-----------------------------------------');
-                console.log(`Permanent Link: ${uploadRes.webViewLink}`);
+                console.log(`Direct Download: ${uploadRes.webContentLink}`);
+                console.log(`Drive Viewer:    ${uploadRes.webViewLink}`);
                 console.log('=========================================\n');
             }
         });

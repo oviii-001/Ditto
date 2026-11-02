@@ -148,4 +148,36 @@ describe('Regression Tests', () => {
       expect(fs.existsSync(lockPath)).toBe(false);
     });
   });
+
+  describe('Bug Regression 5: Google Drive direct download CDN & browser cache-busting', () => {
+    it('appends unique timestamp and scan bypass flag so phone never downloads stale APK from cache', async () => {
+      const mockAuthClient = {} as OAuth2Client;
+      const driveManager = new DriveManager(mockAuthClient);
+      const rawDrive = driveManager.getRawDrive();
+
+      const fakeApk = path.join(tempDir, 'dummy.apk');
+      fs.writeFileSync(fakeApk, 'fake-binary');
+
+      rawDrive.files.update = vi.fn().mockResolvedValue({
+        data: {
+          id: 'test-apk-id',
+          name: CANONICAL_APK_NAME,
+          webViewLink: 'https://drive.google.com/file/d/test-apk-id/view',
+          webContentLink: 'https://drive.google.com/uc?id=test-apk-id&export=download',
+        },
+      });
+
+      const beforeTime = Date.now();
+      const res = await driveManager.uploadApk('test-apk-id', fakeApk);
+      const afterTime = Date.now();
+
+      // Ensure cache buster timestamp parameter exists and is valid
+      expect(res.webContentLink).toContain('confirm=t');
+      const match = res.webContentLink.match(/[?&]t=(\d+)/);
+      expect(match).not.toBeNull();
+      const timestamp = Number(match![1]);
+      expect(timestamp).toBeGreaterThanOrEqual(beforeTime);
+      expect(timestamp).toBeLessThanOrEqual(afterTime);
+    });
+  });
 });

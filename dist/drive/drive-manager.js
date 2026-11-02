@@ -348,7 +348,12 @@ export class DriveManager {
         });
         const durationSeconds = Number(((Date.now() - startTime) / 1000).toFixed(1));
         const webViewLink = res.data.webViewLink || `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
-        const webContentLink = res.data.webContentLink || `https://drive.google.com/uc?export=download&id=${fileId}`;
+        // Append cache-busting timestamp and virus-scan bypass to prevent Google CDN
+        // and mobile browser caches from serving stale APKs on subsequent builds.
+        const rawDirectUrl = res.data.webContentLink || `https://drive.google.com/uc?export=download&id=${fileId}`;
+        const separator = rawDirectUrl.includes('?') ? '&' : '?';
+        const confirmParam = rawDirectUrl.includes('confirm=') ? '' : '&confirm=t';
+        const webContentLink = `${rawDirectUrl}${separator}t=${Date.now()}${confirmParam}`;
         return {
             durationSeconds,
             webViewLink,

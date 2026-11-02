@@ -56,7 +56,7 @@ Ditto outputs human-readable progress on `stderr` and prints a single machine-re
   "drive": {
     "fileId": "1a2b3c4d5e6f7g8h9i0j",
     "webViewUrl": "https://drive.google.com/file/d/1a2b3c4d5e6f7g8h9i0j/view?usp=sharing",
-    "directDownloadUrl": "https://drive.google.com/uc?export=download&id=1a2b3c4d5e6f7g8h9i0j",
+    "directDownloadUrl": "https://drive.google.com/uc?export=download&id=1a2b3c4d5e6f7g8h9i0j&t=1730534000000&confirm=t",
     "overwritten": true
   }
 }
@@ -64,7 +64,7 @@ Ditto outputs human-readable progress on `stderr` and prints a single machine-re
 
 ### 3. Notifying the User in Chat
 
-When `status === "success"`, post a clear, formatted card in your conversation response:
+When `status === "success"`, post a clear, formatted card in your conversation response. Always use `{drive.directDownloadUrl}` for the direct APK install button because it contains an automated cache-busting timestamp (`&t=...`) guaranteeing the user's phone browser and DownloadManager fetch this latest build rather than a cached older version:
 
 ```markdown
 ### 📱 Android Build Ready for Testing!
@@ -73,9 +73,10 @@ When `status === "success"`, post a clear, formatted card in your conversation r
 - **Version:** {project.versionName} (Build {project.versionCode})
 - **Size:** {artifact.sizeMb} MB
 - **Build Time:** {artifact.buildDurationSec}s | **Upload:** {artifact.uploadDurationSec}s
-- **Permanent Download Link:** [{artifact.fileName} ({drive.webViewUrl})]({drive.webViewUrl})
+- **Direct Download (Phone):** [Download Latest APK ({artifact.fileName})]({drive.directDownloadUrl})
+- **Google Drive Folder:** [View in Google Drive]({drive.webViewUrl})
 
-*(Note: This build replaces the previous APK on your permanent phone testing link).*
+*(Note: The download link automatically bypasses cache to install your latest build).*
 ```
 
 ### 4. Handling Errors

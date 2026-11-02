@@ -331,6 +331,9 @@ describe('DriveManager', () => {
       try {
         const result = await driveManager.uploadApk('canonical-789', tempFile);
         expect(result.webViewLink).toBe('https://drive.google.com/view/canonical-789');
+        expect(result.webContentLink).toContain('https://drive.google.com/download/canonical-789');
+        expect(result.webContentLink).toMatch(/[?&]t=\d+/);
+        expect(result.webContentLink).toContain('confirm=t');
         expect(mockFilesUpdate).toHaveBeenCalledWith(
           expect.objectContaining({
             fileId: 'canonical-789',
